@@ -1,0 +1,1 @@
+export { VerifyResetCodeScreen as default } from '@/features/auth';

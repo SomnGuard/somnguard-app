@@ -1,0 +1,55 @@
+export const sessions = [
+  { id: '1', dateKey: 'history.sessions.today0830', km: 12, alerts: 1, duration: '23 min' },
+  { id: '2', dateKey: 'history.sessions.yesterday1715', km: 34, alerts: 0, duration: '48 min' },
+  { id: '3', dateKey: 'history.sessions.yesterday0700', km: 8, alerts: 2, duration: '15 min' },
+  { id: '4', dateKey: 'history.sessions.april071420', km: 56, alerts: 0, duration: '1h 12m' },
+  { id: '5', dateKey: 'history.sessions.april060910', km: 137, alerts: 1, duration: '2h 05m' },
+];
+
+export const historyEvents = [
+  {
+    id: 'sleep-critical',
+    titleKey: 'history.events.sleepTitle',
+    summaryKey: 'history.events.sleepCritical',
+    detailKey: 'history.events.prolongedEyes43',
+    timeKey: 'history.events.ago3h',
+    tone: 'danger' as const,
+    icon: 'warning-outline' as const,
+  },
+  {
+    id: 'sleep-light',
+    titleKey: 'history.events.sleepTitle',
+    summaryKey: 'history.events.sleepLight',
+    detailKey: 'history.events.prolongedEyes29',
+    timeKey: 'history.events.ago7h',
+    tone: 'info' as const,
+    icon: 'moon-outline' as const,
+  },
+  {
+    id: 'distraction-heavy',
+    titleKey: 'history.events.distractionTitle',
+    summaryKey: 'history.events.distractionHeavy',
+    detailKey: 'history.events.gazeOut52',
+    timeKey: 'history.events.ago15h',
+    tone: 'danger' as const,
+    icon: 'warning-outline' as const,
+  },
+  {
+    id: 'distraction-light',
+    titleKey: 'history.events.distractionTitle',
+    summaryKey: 'history.events.distractionLight',
+    detailKey: 'history.events.gazeOut32',
+    timeKey: 'history.events.ago15h',
+    tone: 'info' as const,
+    icon: 'ellipse-outline' as const,
+  },
+  {
+    id: 'phone-use',
+    titleKey: 'history.events.distractionTitle',
+    summaryKey: 'history.events.distractionLight',
+    detailKey: 'history.events.phoneUse47',
+    timeKey: 'history.events.ago15h',
+    tone: 'info' as const,
+    icon: 'ellipse-outline' as const,
+  },
+];
