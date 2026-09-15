@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { authService } from '@/features/auth/services/auth.service';
 import SomnGuardLogo from '@/shared/components/SomnGuardLogo';
 import { Screen } from '@/shared/components/Screen';
-import { STATIC_COPY } from '@/shared/i18n/constants';
 import { useAppTheme } from '@/shared/theme';
 import { isRequired, isValidEmail } from '@/shared/utils/validation';
 
@@ -77,7 +76,6 @@ export default function ForgotPasswordScreen() {
             />
           </View>
           {!!error && <Text style={styles.error}>{error}</Text>}
-          <Text style={styles.helper}>{t('auth.forgot.helper', { emails: STATIC_COPY.passwordResetEmails })}</Text>
         </View>
 
         <Pressable accessibilityRole="button" disabled={isSubmitting} style={({ pressed }) => [styles.button, pressed && styles.buttonPressed, isSubmitting && styles.buttonDisabled]} onPress={handleSubmit}>
@@ -102,7 +100,6 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   inputRowError: { borderWidth: 1, borderColor: theme.colors.error },
   input: { flex: 1, color: theme.colors.accent, fontSize: 15, fontWeight: '800', borderBottomWidth: 1, borderBottomColor: theme.colors.accent, paddingVertical: 4 },
   error: { color: theme.colors.error, fontSize: 11, fontWeight: '700', marginTop: 6 },
-  helper: { color: theme.colors.textMuted, fontSize: 10, fontWeight: '700', marginTop: 8 },
   button: { alignSelf: 'center', width: 155, minHeight: 45, borderRadius: 12, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', marginTop: 54 },
   buttonPressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
   buttonDisabled: { opacity: 0.62 },
