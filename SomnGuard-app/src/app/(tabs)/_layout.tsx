@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/shared/theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -24,7 +25,8 @@ function TabIcon({ icon, label, focused }: TabIconProps) {
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const styles = createStyles(theme);
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(theme, insets.bottom);
 
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarShowLabel: false, tabBarStyle: styles.tabBar, tabBarItemStyle: styles.tabBarItem }}>
@@ -37,9 +39,9 @@ export default function TabsLayout() {
   );
 }
 
-function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
+function createStyles(theme: ReturnType<typeof useAppTheme>['theme'], bottomInset: number = 0) {
   return StyleSheet.create({
-  tabBar: { height: 72, backgroundColor: theme.colors.header, borderTopWidth: 0, paddingTop: 6, paddingBottom: 6 },
+  tabBar: { height: 72 + bottomInset, backgroundColor: theme.colors.header, borderTopWidth: 0, paddingTop: 6, paddingBottom: Math.max(bottomInset, 6) },
   tabBarItem: { height: 60 },
   tabItem: { alignItems: 'center', justifyContent: 'center', gap: 1 },
   tabLabel: { color: theme.colors.accent, fontSize: 9, fontWeight: '900' },
