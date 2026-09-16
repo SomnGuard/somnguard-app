@@ -1,16 +1,19 @@
 import { PropsWithChildren } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/shared/theme';
 
 type Props = PropsWithChildren<{ keyboard?: boolean; centered?: boolean; contentStyle?: ViewStyle }>;
 
 export function Screen({ children, keyboard = false, centered = false, contentStyle }: Props) {
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const styles = createStyles(theme);
+  const bottomPadding = Math.max(insets.bottom, theme.spacing.xxl);
   const content = (
     <ScrollView
       style={styles.wrapper}
-      contentContainerStyle={[styles.scroll, centered && styles.centered, contentStyle]}
+      contentContainerStyle={[styles.scroll, { paddingBottom: bottomPadding }, centered && styles.centered, contentStyle]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
@@ -30,7 +33,7 @@ export function Screen({ children, keyboard = false, centered = false, contentSt
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
   wrapper: { flex: 1, backgroundColor: theme.colors.background },
-  scroll: { flexGrow: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.xl, paddingBottom: theme.spacing.xxl },
+  scroll: { flexGrow: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.xl },
   centered: { justifyContent: 'center' },
   });
 }
