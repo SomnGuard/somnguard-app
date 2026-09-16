@@ -52,6 +52,14 @@ const es = {
       messageLine2: 'correo revisalo e ingresa',
       messageLine3: 'en los siguientes cuadros.',
     },
+    verifyEmail: {
+      messageLine1: 'Se envió un código de verificación a tu',
+      messageLine2: 'correo electrónico. Revisa tu bandeja',
+      messageLine3: 'de entrada e ingresa el código aquí.',
+      tokenPlaceholder: 'Código de verificación',
+      submit: 'Verificar correo',
+      backToRegister: 'Volver al registro',
+    },
     reset: {
       title: 'Cambiar Contrasena',
       newPassword: 'Nueva Contrasena',
@@ -86,6 +94,8 @@ const es = {
       confirmNewPassword: 'Confirma la contrasena.',
       resetFailed: 'No se pudo actualizar la contrasena.',
       resetAgain: 'No se pudo actualizar la contrasena. Solicita el codigo de nuevo.',
+      termsRequired: 'Debes aceptar los términos y condiciones.',
+      tokenRequired: 'El token es obligatorio.',
     },
   },
   tabs: {
@@ -331,6 +341,14 @@ const en: typeof es = {
       messageLine2: 'email. Check it and enter it',
       messageLine3: 'in the following boxes.',
     },
+    verifyEmail: {
+      messageLine1: 'A verification code was sent to your',
+      messageLine2: 'email. Check your inbox',
+      messageLine3: 'and enter the code here.',
+      tokenPlaceholder: 'Verification code',
+      submit: 'Verify email',
+      backToRegister: 'Back to register',
+    },
     reset: {
       title: 'Change Password',
       newPassword: 'New Password',
@@ -365,6 +383,8 @@ const en: typeof es = {
       confirmNewPassword: 'Confirm the password.',
       resetFailed: 'Could not update the password.',
       resetAgain: 'Could not update the password. Request the code again.',
+      termsRequired: 'You must accept the terms and conditions.',
+      tokenRequired: 'Token is required.',
     },
   },
   tabs: {
@@ -610,6 +630,14 @@ const pt: typeof es = {
       messageLine2: 'email. Confira e digite',
       messageLine3: 'nos quadros seguintes.',
     },
+    verifyEmail: {
+      messageLine1: 'Um código de verificação foi enviado ao seu',
+      messageLine2: 'e-mail. Confira sua caixa de entrada',
+      messageLine3: 'e digite o código aqui.',
+      tokenPlaceholder: 'Código de verificação',
+      submit: 'Verificar e-mail',
+      backToRegister: 'Voltar ao cadastro',
+    },
     reset: {
       title: 'Alterar Senha',
       newPassword: 'Nova Senha',
@@ -644,6 +672,8 @@ const pt: typeof es = {
       confirmNewPassword: 'Confirme a senha.',
       resetFailed: 'Nao foi possivel atualizar a senha.',
       resetAgain: 'Nao foi possivel atualizar a senha. Solicite o codigo novamente.',
+      termsRequired: 'Voce deve aceitar os termos e condicoes.',
+      tokenRequired: 'Token e obrigatorio.',
     },
   },
   tabs: {
@@ -889,6 +919,14 @@ const fr: typeof es = {
       messageLine2: 'e-mail. Verifie-le et saisis-le',
       messageLine3: 'dans les cases suivantes.',
     },
+    verifyEmail: {
+      messageLine1: 'Un code de verification a ete envoye a ton',
+      messageLine2: 'e-mail. Verifie ta boite de reception',
+      messageLine3: 'et saisis le code ici.',
+      tokenPlaceholder: 'Code de verification',
+      submit: 'Verifier l email',
+      backToRegister: 'Retour a l inscription',
+    },
     reset: {
       title: 'Changer le mot de passe',
       newPassword: 'Nouveau mot de passe',
@@ -923,6 +961,8 @@ const fr: typeof es = {
       confirmNewPassword: 'Confirme le mot de passe.',
       resetFailed: 'Impossible de mettre a jour le mot de passe.',
       resetAgain: 'Impossible de mettre a jour le mot de passe. Redemande le code.',
+      termsRequired: 'Vous devez accepter les conditions generales.',
+      tokenRequired: 'Le jeton est obligatoire.',
     },
   },
   tabs: {

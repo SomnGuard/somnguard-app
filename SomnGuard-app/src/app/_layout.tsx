@@ -1,13 +1,16 @@
 import '@/shared/i18n';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useAppTheme } from '@/shared/theme';
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <RootNavigator />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <RootNavigator />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
