@@ -14,7 +14,7 @@ function validate(form: RegisterForm, t: TFunction): RegisterErrors {
   if (!isRequired(form.email)) errors.email = t('auth.errors.emailRequired');
   else if (!isValidEmail(form.email)) errors.email = t('auth.errors.invalidEmailLong');
   if (!isRequired(form.password)) errors.password = t('auth.errors.passwordRequired');
-  else if (!hasMinLength(form.password, 6)) errors.password = t('auth.errors.minPassword', { count: 6 });
+  else if (!hasMinLength(form.password, 8)) errors.password = t('auth.errors.minPassword', { count: 8 });
   if (!isRequired(form.confirmPassword)) errors.confirmPassword = t('auth.errors.confirmPasswordRequired');
   else if (form.password !== form.confirmPassword) errors.confirmPassword = t('auth.errors.passwordsMismatch');
   if (!isRequired(form.phone)) errors.phone = t('auth.errors.phoneRequired');
@@ -31,7 +31,7 @@ export function useRegisterForm(onSuccess: () => void) {
   function updateField<K extends keyof RegisterForm>(field: K, value: RegisterForm[K]) {
     const nextValue = field === 'phone' ? onlyDigits(value).slice(0, 10) : value;
     setForm((current) => ({ ...current, [field]: nextValue }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
+    setErrors((current) => ({ ...current, [field]: undefined, general: undefined }));
   }
 
   async function submit() {
@@ -43,7 +43,17 @@ export function useRegisterForm(onSuccess: () => void) {
       await authService.register(form);
       onSuccess();
     } catch (error) {
-      setErrors({ email: error instanceof Error ? error.message : t('auth.errors.registerFailed') });
+      const message = error instanceof Error ? error.message : t('auth.errors.registerFailed');
+      // Intentar mapear errores comunes a campos específicos
+      if (message.includes('email') || message.includes('Email')) {
+        setErrors({ email: message });
+      } else if (message.includes('password') || message.includes('Password')) {
+        setErrors({ password: message });
+      } else if (message.includes('phone') || message.includes('Phone')) {
+        setErrors({ phone: message });
+      } else {
+        setErrors({ general: message });
+      }
     } finally {
       setIsSubmitting(false);
     }
