@@ -17,9 +17,29 @@ import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Ellipse, Path, Rect } from 'react-native-svg';
 
 // â”€â”€ Wrappers animados de SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const AnimatedRect   = Animated.createAnimatedComponent(Rect);
-const AnimatedEllipse = Animated.createAnimatedComponent(Ellipse);
-const AnimatedPath   = Animated.createAnimatedComponent(Path);
+function withoutCollapsable<P extends object>(
+  Component: React.ComponentType<P>,
+  displayName: string,
+) {
+  const Filtered = React.forwardRef<unknown, P>((props, ref) => {
+    const { collapsable: _ignored, ...rest } = props as P & {
+      collapsable?: boolean;
+    };
+    return <Component {...(rest as P)} ref={ref as never} />;
+  });
+  Filtered.displayName = displayName;
+  return Filtered;
+}
+
+const AnimatedRect   = Animated.createAnimatedComponent(
+  withoutCollapsable(Rect, 'AnimatedRectWithoutCollapsable'),
+);
+const AnimatedEllipse = Animated.createAnimatedComponent(
+  withoutCollapsable(Ellipse, 'AnimatedEllipseWithoutCollapsable'),
+);
+const AnimatedPath   = Animated.createAnimatedComponent(
+  withoutCollapsable(Path, 'AnimatedPathWithoutCollapsable'),
+);
 
 // â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface Props {

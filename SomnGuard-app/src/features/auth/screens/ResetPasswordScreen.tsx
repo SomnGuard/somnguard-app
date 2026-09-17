@@ -13,8 +13,9 @@ type PasswordErrors = { password?: string; confirmPassword?: string; general?: s
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { email } = useLocalSearchParams<{ email?: string }>();
-  const recoveryEmail = String(email ?? '').trim().toLowerCase();
+  const { token: tokenParam } = useLocalSearchParams<{ token?: string }>();
+  const recoveryToken = String(tokenParam ?? '').trim();
+  const [token, setToken] = useState(recoveryToken);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<PasswordErrors>({});
@@ -24,7 +25,8 @@ export default function ResetPasswordScreen() {
 
   function validate() {
     const nextErrors: PasswordErrors = {};
-    if (!recoveryEmail || !authService.isRegisteredEmail(recoveryEmail)) nextErrors.general = t('auth.errors.requestCodeFirst');
+    const effectiveToken = token.trim() || recoveryToken;
+    if (!effectiveToken) nextErrors.general = t('auth.errors.tokenRequired') || 'Token requerido, revisa tu correo';
     if (!password) nextErrors.password = t('auth.errors.newPasswordRequired');
     else if (password.length < 8) nextErrors.password = t('auth.errors.newPasswordMin', { count: 8 });
     if (!confirmPassword) nextErrors.confirmPassword = t('auth.errors.confirmNewPassword');
@@ -37,7 +39,8 @@ export default function ResetPasswordScreen() {
     if (!validate()) return;
     try {
       setIsSubmitting(true);
-      await authService.resetPassword(recoveryEmail, password);
+      const effectiveToken = token.trim() || recoveryToken;
+      await authService.resetPassword(effectiveToken, password);
       router.replace('/(auth)/login');
     } catch (submitError) {
       setErrors({ general: submitError instanceof Error ? submitError.message : t('auth.errors.resetFailed') });
@@ -59,6 +62,25 @@ export default function ResetPasswordScreen() {
         </View>
 
         {!!errors.general && <Text style={styles.generalError}>{errors.general}</Text>}
+
+        <View style={styles.fieldBlock}>
+          <Text style={styles.label}>Token</Text>
+          <View style={[styles.inputRow, !!errors.general && styles.inputRowError]}>
+            <Ionicons name="key-outline" size={20} color={theme.colors.accent} />
+            <TextInput
+              value={token}
+              onChangeText={(value) => {
+                setToken(value);
+                if (errors.general) setErrors((current) => ({ ...current, general: undefined }));
+              }}
+              placeholder={t('auth.verifyEmail.tokenPlaceholder')}
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholderTextColor={theme.colors.accent}
+              style={styles.input}
+            />
+          </View>
+        </View>
 
         <PasswordField
           label={t('auth.reset.newPassword')}

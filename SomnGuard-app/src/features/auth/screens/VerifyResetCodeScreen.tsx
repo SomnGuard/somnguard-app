@@ -1,51 +1,28 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { authService } from '@/features/auth/services/auth.service';
 import SomnGuardLogo from '@/shared/components/SomnGuardLogo';
 import { Screen } from '@/shared/components/Screen';
-import { STATIC_COPY } from '@/shared/i18n/constants';
 import { useAppTheme } from '@/shared/theme';
-
-const CODE_LENGTH = 5;
 
 export default function VerifyResetCodeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { email } = useLocalSearchParams<{ email?: string }>();
   const recoveryEmail = String(email ?? '').trim().toLowerCase();
-  const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''));
+  const [token, setToken] = useState('');
   const [error, setError] = useState('');
-  const inputRefs = useRef<(TextInput | null)[]>([]);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
 
-  function updateDigit(value: string, index: number) {
-    const digit = value.replace(/\D/g, '').slice(-1);
-    const nextDigits = [...digits];
-    nextDigits[index] = digit;
-    setDigits(nextDigits);
-    if (error) setError('');
-    if (digit && index < CODE_LENGTH - 1) inputRefs.current[index + 1]?.focus();
-  }
-
   function handleSubmit() {
-    if (!recoveryEmail || !authService.isRegisteredEmail(recoveryEmail)) {
-      setError(t('auth.errors.requestRegisteredEmail'));
+    const normalizedToken = token.trim();
+    if (!normalizedToken) {
+      setError(t('auth.errors.tokenRequired') || 'Ingresa el token recibido por correo');
       return;
     }
-
-    const code = digits.join('');
-    if (code.length !== CODE_LENGTH) {
-      setError(t('auth.errors.completeCode', { count: CODE_LENGTH }));
-      return;
-    }
-    if (code !== STATIC_COPY.recoveryCode) {
-      setError(t('auth.errors.invalidCode', { code: STATIC_COPY.recoveryCode }));
-      return;
-    }
-    router.push({ pathname: '/(auth)/reset-password', params: { email: recoveryEmail } });
+    router.push({ pathname: '/(auth)/reset-password', params: { token: normalizedToken, email: recoveryEmail } });
   }
 
   return (
@@ -61,22 +38,19 @@ export default function VerifyResetCodeScreen() {
           <Text style={styles.messageText}>{t('auth.verify.messageLine3')}</Text>
         </View>
 
-        <View style={styles.codeRow}>
-          {digits.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => { inputRefs.current[index] = ref; }}
-              value={digit}
-              onChangeText={(value) => updateDigit(value, index)}
-              onKeyPress={({ nativeEvent }) => {
-                if (nativeEvent.key === 'Backspace' && !digits[index] && index > 0) inputRefs.current[index - 1]?.focus();
-              }}
-              keyboardType="number-pad"
-              maxLength={1}
-              style={[styles.codeBox, !!error && styles.codeBoxError]}
-              textAlign="center"
-            />
-          ))}
+        <View style={styles.inputWrapper}>
+          <TextInput
+            value={token}
+            onChangeText={(value) => {
+              setToken(value);
+              if (error) setError('');
+            }}
+            placeholder={t('auth.verifyEmail.tokenPlaceholder')}
+            autoCapitalize="none"
+            autoCorrect={false}
+            style={[styles.input, !!error && styles.inputError]}
+            textAlign="center"
+          />
         </View>
         {!!error && <Text style={styles.error}>{error}</Text>}
 
@@ -94,10 +68,22 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   content: { width: '100%', maxWidth: 360, alignItems: 'center' },
   logoBlock: { marginBottom: 18 },
   messageCard: { width: '100%', borderRadius: 10, backgroundColor: theme.colors.header, paddingHorizontal: 16, paddingVertical: 16, gap: 14, shadowColor: '#000', shadowOpacity: 0.28, shadowRadius: 10, elevation: 5 },
-  messageText: { color: theme.colors.accent, fontSize: 18, fontWeight: '900', lineHeight: 24 },
-  codeRow: { flexDirection: 'row', justifyContent: 'center', gap: 7, marginTop: 52 },
-  codeBox: { width: 37, height: 37, borderRadius: 7, backgroundColor: theme.colors.header, color: theme.colors.accent, fontSize: 18, fontWeight: '900' },
-  codeBoxError: { borderWidth: 1, borderColor: theme.colors.error },
+  messageText: { color: theme.colors.accent, fontSize: 18, fontWeight: '900', lineHeight: 24, textAlign: 'center' },
+  inputWrapper: { width: '100%', marginTop: 40, marginBottom: 16 },
+  input: {
+    width: '100%',
+    minHeight: 56,
+    backgroundColor: theme.colors.input,
+    color: theme.colors.text,
+    borderRadius: theme.radius.input,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    fontSize: theme.fontSize.sm,
+    fontFamily: 'monospace',
+  },
+  inputError: { borderColor: theme.colors.error, backgroundColor: theme.colors.errorBg },
   error: { color: theme.colors.error, fontSize: 11, fontWeight: '800', marginTop: 10, textAlign: 'center' },
   button: { width: 184, minHeight: 55, borderRadius: 28, backgroundColor: theme.colors.header, alignItems: 'center', justifyContent: 'center', marginTop: 50, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 10, elevation: 4 },
   buttonPressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
