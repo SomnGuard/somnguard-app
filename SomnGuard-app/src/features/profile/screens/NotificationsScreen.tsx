@@ -11,25 +11,13 @@ export default function NotificationsScreen() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
-  const [settings, setSettings] = useState({
-    pushNotifications: true,
-    securityAlerts: true,
-    accountActivity: true,
-    reminders: true,
-    emailNotifications: false,
-    dailySummary: true,
-    criticalAlerts: true,
-  });
-
-  function toggleSetting(key: keyof typeof settings) {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
-  }
+  const [pushEnabled, setPushEnabled] = useState(true);
 
   return (
-    <Screen contentStyle={styles.screen}>
+    <Screen scrollable={false} contentStyle={styles.screen}>
       <View style={styles.topBar}>
         <Pressable accessibilityRole="button" style={styles.backButton} onPress={() => router.push('/profile' as any)}>
-          <Ionicons name="arrow-back-outline" size={30} color={theme.colors.accent} />
+          <Ionicons name="arrow-back-outline" size={28} color={theme.colors.accent} />
         </Pressable>
         <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
       </View>
@@ -39,55 +27,39 @@ export default function NotificationsScreen() {
         <Text style={styles.sectionDescription}>{t('notifications.pushDescription')}</Text>
 
         <View style={styles.optionCard}>
-          <NotificationRow title={t('notifications.securityAlerts')} subtitle={t('notifications.securityAlertsDescription')} value={settings.securityAlerts} onToggle={() => toggleSetting('securityAlerts')} />
-          <NotificationRow title={t('notifications.accountActivity')} subtitle={t('notifications.accountActivityDescription')} value={settings.accountActivity} onToggle={() => toggleSetting('accountActivity')} />
-          <NotificationRow title={t('notifications.reminders')} subtitle={t('notifications.remindersDescription')} value={settings.reminders} onToggle={() => toggleSetting('reminders')} />
-        </View>
-
-        <Text style={styles.sectionTitle}>{t('notifications.emailTitle')}</Text>
-        <Text style={styles.sectionDescription}>{t('notifications.emailDescription')}</Text>
-
-        <View style={styles.optionCard}>
-          <NotificationRow title={t('notifications.dailySummary')} subtitle={t('notifications.dailySummaryDescription')} value={settings.dailySummary} onToggle={() => toggleSetting('dailySummary')} />
-          <NotificationRow title={t('notifications.criticalAlerts')} subtitle={t('notifications.criticalAlertsDescription')} value={settings.criticalAlerts} onToggle={() => toggleSetting('criticalAlerts')} />
+          <View style={styles.optionRow}>
+            <View style={styles.optionTextBlock}>
+              <Text style={styles.optionTitle}>{t('notifications.pushTitle')}</Text>
+              <Text style={styles.optionSubtitle}>{t('notifications.pushDescription')}</Text>
+            </View>
+            <Switch
+              value={pushEnabled}
+              onValueChange={setPushEnabled}
+              thumbColor={pushEnabled ? theme.colors.accent : theme.colors.text}
+              trackColor={{ false: '#5a8095', true: theme.colors.accentLight }}
+            />
+          </View>
+          <Text style={styles.statusText}>{pushEnabled ? t('common.enabled') : t('common.disabled')}</Text>
         </View>
       </View>
     </Screen>
   );
 }
 
-function NotificationRow({ title, subtitle, value, onToggle }: { title: string; subtitle: string; value: boolean; onToggle: () => void }) {
-  const { theme } = useAppTheme();
-  const styles = createStyles(theme);
-
-  return (
-    <View style={styles.optionRow}>
-      <View>
-        <Text style={styles.optionTitle}>{title}</Text>
-        <Text style={styles.optionSubtitle}>{subtitle}</Text>
-      </View>
-      <Switch
-        value={value}
-        onValueChange={onToggle}
-        thumbColor={value ? theme.colors.accent : theme.colors.text}
-        trackColor={{ false: '#5a8095', true: theme.colors.accentLight }}
-      />
-    </View>
-  );
-}
-
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
-  screen: { paddingHorizontal: 0, paddingBottom: 0, marginTop: '15%' },
-  topBar: { height: 67, backgroundColor: theme.colors.header, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
-  backButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 24 },
-  headerTitle: { color: theme.colors.accent, fontSize: 25, fontWeight: '900', textDecorationLine: 'underline' },
-  content: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingTop: 24, paddingHorizontal: 24, paddingBottom: 92, gap: 18 },
+  screen: { paddingHorizontal: 0, paddingBottom: 0, paddingTop: 0, flex: 1 },
+  topBar: { height: 56, backgroundColor: theme.colors.header, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+  headerTitle: { color: theme.colors.accent, fontSize: 20, fontWeight: '900', textDecorationLine: 'underline' },
+  content: { flex: 1, width: '100%', maxWidth: 420, alignSelf: 'center', paddingTop: 16, paddingHorizontal: 24, paddingBottom: 16, gap: 14 },
   sectionTitle: { color: theme.colors.accent, fontSize: 20, fontWeight: '900' },
   sectionDescription: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginBottom: 12 },
   optionCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, padding: 20, gap: 16, shadowColor: '#000', shadowOpacity: 0.14, shadowRadius: 10, elevation: 5 },
   optionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  optionTextBlock: { flex: 1, paddingRight: 12 },
   optionTitle: { color: theme.colors.accent, fontSize: theme.fontSize.md, fontWeight: '900', marginBottom: 4 },
-  optionSubtitle: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 20, maxWidth: '80%' },
+  optionSubtitle: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 20, maxWidth: '100%' },
+  statusText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, fontWeight: '700' },
   });
 }

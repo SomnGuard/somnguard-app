@@ -3,7 +3,5 @@
 // que deben quedarse iguales en todos los idiomas por requisito del proyecto.
 export const STATIC_COPY = {
   appName: 'SOMNGUARD',
-  kmUnit: 'Km',
-  syncLabel: 'SYNC',
   faqLabel: 'FAQ',
 } as const;

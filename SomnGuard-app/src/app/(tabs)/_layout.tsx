@@ -16,8 +16,8 @@ function TabIcon({ icon, label, focused }: TabIconProps) {
 
   return (
     <View style={styles.tabItem}>
-      <Ionicons name={icon} size={focused ? 36 : 33} color={theme.colors.accent} />
-      <Text style={styles.tabLabel}>{label}</Text>
+      <Ionicons name={icon} size={focused ? 26 : 24} color={theme.colors.accent} />
+      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]} numberOfLines={1} adjustsFontSizeToFit>{label}</Text>
     </View>
   );
 }
@@ -33,7 +33,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" options={{ tabBarIcon: ({ focused }) => <TabIcon icon="home-outline" label={t('tabs.home')} focused={focused} /> }} />
       <Tabs.Screen name="monitoring" options={{ tabBarIcon: ({ focused }) => <TabIcon icon="eye-outline" label={t('tabs.monitoring')} focused={focused} /> }} />
       <Tabs.Screen name="history" options={{ tabBarIcon: ({ focused }) => <TabIcon icon="time-outline" label={t('tabs.history')} focused={focused} /> }} />
-      <Tabs.Screen name="history-filters" options={{ href: null }} />
       <Tabs.Screen name="profile" options={{ tabBarIcon: ({ focused }) => <TabIcon icon="settings-outline" label={t('tabs.settings')} focused={focused} /> }} />
     </Tabs>
   );
@@ -41,9 +40,10 @@ export default function TabsLayout() {
 
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme'], bottomInset: number = 0) {
   return StyleSheet.create({
-  tabBar: { height: 72 + bottomInset, backgroundColor: theme.colors.header, borderTopWidth: 0, paddingTop: 6, paddingBottom: Math.max(bottomInset, 6) },
-  tabBarItem: { height: 60 },
-  tabItem: { alignItems: 'center', justifyContent: 'center', gap: 1 },
-  tabLabel: { color: theme.colors.accent, fontSize: 9, fontWeight: '900' },
+  tabBar: { height: 62 + bottomInset, backgroundColor: theme.colors.header, borderTopWidth: 0, paddingTop: 4, paddingBottom: Math.max(bottomInset, 6), paddingHorizontal: 4 },
+  tabBarItem: { flex: 1, height: 54, justifyContent: 'center', alignItems: 'center', paddingVertical: 4, paddingHorizontal: 2 },
+  tabItem: { flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: 2 },
+  tabLabel: { color: theme.colors.accent, fontSize: 10, fontWeight: '700', textAlign: 'center', width: '100%', lineHeight: 12 },
+  tabLabelFocused: { fontWeight: '800' },
   });
 }
