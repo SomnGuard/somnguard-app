@@ -1,11 +1,3 @@
-export const sessions = [
-  { id: '1', dateKey: 'history.sessions.today0830', km: 12, alerts: 1, duration: '23 min' },
-  { id: '2', dateKey: 'history.sessions.yesterday1715', km: 34, alerts: 0, duration: '48 min' },
-  { id: '3', dateKey: 'history.sessions.yesterday0700', km: 8, alerts: 2, duration: '15 min' },
-  { id: '4', dateKey: 'history.sessions.april071420', km: 56, alerts: 0, duration: '1h 12m' },
-  { id: '5', dateKey: 'history.sessions.april060910', km: 137, alerts: 1, duration: '2h 05m' },
-];
-
 export const historyEvents = [
   {
     id: 'sleep-critical',
@@ -15,6 +7,8 @@ export const historyEvents = [
     timeKey: 'history.events.ago3h',
     tone: 'danger' as const,
     icon: 'warning-outline' as const,
+    type: 'sleepiness' as const,
+    date: '2026-09-16',
   },
   {
     id: 'sleep-light',
@@ -24,6 +18,8 @@ export const historyEvents = [
     timeKey: 'history.events.ago7h',
     tone: 'info' as const,
     icon: 'moon-outline' as const,
+    type: 'sleepiness' as const,
+    date: '2026-09-15',
   },
   {
     id: 'distraction-heavy',
@@ -33,6 +29,8 @@ export const historyEvents = [
     timeKey: 'history.events.ago15h',
     tone: 'danger' as const,
     icon: 'warning-outline' as const,
+    type: 'distraction' as const,
+    date: '2026-09-15',
   },
   {
     id: 'distraction-light',
@@ -42,6 +40,19 @@ export const historyEvents = [
     timeKey: 'history.events.ago15h',
     tone: 'info' as const,
     icon: 'ellipse-outline' as const,
+    type: 'distraction' as const,
+    date: '2026-04-07',
+  },
+  {
+    id: 'eye-closure-1',
+    titleKey: 'history.events.distractionTitle',
+    summaryKey: 'history.events.distractionLight',
+    detailKey: 'history.events.prolongedEyes43',
+    timeKey: 'history.events.ago3h',
+    tone: 'danger' as const,
+    icon: 'eye-off-outline' as const,
+    type: 'eyeClosure' as const,
+    date: '2026-09-16',
   },
   {
     id: 'phone-use',
@@ -51,5 +62,7 @@ export const historyEvents = [
     timeKey: 'history.events.ago15h',
     tone: 'info' as const,
     icon: 'ellipse-outline' as const,
+    type: 'distraction' as const,
+    date: '2026-04-06',
   },
 ];

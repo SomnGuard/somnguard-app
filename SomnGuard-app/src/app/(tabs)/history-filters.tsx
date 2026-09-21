@@ -1,1 +1,0 @@
-export { HistoryFiltersScreen as default } from '@/features/history';

@@ -80,7 +80,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   closeButton: { width: 40, height: 40, justifyContent: 'center', marginBottom: theme.spacing.sm },
   closeText: { color: theme.colors.textMuted, fontSize: 32, lineHeight: 34 },
   title: { color: theme.colors.accent, fontSize: theme.fontSize.xxl, fontWeight: '900', textAlign: 'center', marginBottom: theme.spacing.md },
-  subtitle: { color: theme.colors.accent, fontSize: theme.fontSize.sm, textAlign: 'left', marginBottom: 42 },
+  subtitle: { color: theme.colors.accent, fontSize: theme.fontSize.sm, textAlign: 'left', marginBottom: 30 },
   row: { flexDirection: 'row', gap: theme.spacing.sm },
   half: { flex: 1 },
   phoneLabel: { color: theme.colors.accent, fontSize: theme.fontSize.xs, fontWeight: '800', letterSpacing: 1.5, marginBottom: theme.spacing.xs, marginTop: theme.spacing.xs },
