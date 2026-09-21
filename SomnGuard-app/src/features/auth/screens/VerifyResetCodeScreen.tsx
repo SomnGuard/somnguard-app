@@ -32,7 +32,7 @@ export default function VerifyResetCodeScreen() {
           <SomnGuardLogo size={118} hideName />
         </View>
 
-        <View style={styles.messageCard}>
+        <View style={styles.messageBlock}>
           <Text style={styles.messageText}>{t('auth.verify.messageLine1')}</Text>
           <Text style={styles.messageText}>{t('auth.verify.messageLine2')}</Text>
           <Text style={styles.messageText}>{t('auth.verify.messageLine3')}</Text>
@@ -64,11 +64,11 @@ export default function VerifyResetCodeScreen() {
 
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
-  screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 28, paddingHorizontal: 12 },
+  screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 8, paddingHorizontal: 12 },
   content: { width: '100%', maxWidth: 360, alignItems: 'center' },
   logoBlock: { marginBottom: 18 },
-  messageCard: { width: '100%', borderRadius: 10, backgroundColor: theme.colors.header, paddingHorizontal: 16, paddingVertical: 16, gap: 14, shadowColor: '#000', shadowOpacity: 0.28, shadowRadius: 10, elevation: 5 },
-  messageText: { color: theme.colors.accent, fontSize: 18, fontWeight: '900', lineHeight: 24, textAlign: 'center' },
+  messageBlock: { width: '100%', paddingHorizontal: 8, paddingVertical: 8, gap: 4, alignItems: 'center' },
+  messageText: { color: theme.colors.text, fontSize: 14, fontWeight: '500', lineHeight: 20, textAlign: 'center' },
   inputWrapper: { width: '100%', marginTop: 40, marginBottom: 16 },
   input: {
     width: '100%',

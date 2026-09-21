@@ -83,6 +83,13 @@ export const authApi = {
     });
   },
 
+  async verifyPassword(password: string): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>('/api/v1/auth/verify-password', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+  },
+
   async forgotPassword(email: string): Promise<{ message: string }> {
     return apiFetch<{ message: string }>('/api/v1/auth/forgot-password', {
       method: 'POST',
