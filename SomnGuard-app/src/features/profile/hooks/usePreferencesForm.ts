@@ -7,8 +7,6 @@ import type { AppThemeName } from '@/shared/theme';
 const initialForm: PreferencesForm = {
   theme: 'dark',
   language: DEFAULT_LANGUAGE,
-  units: 'metric',
-  soundsEnabled: true,
 };
 
 export function usePreferencesForm(onSuccess: () => void, initialLanguage: AppLanguage = DEFAULT_LANGUAGE, initialTheme: AppThemeName = 'dark') {

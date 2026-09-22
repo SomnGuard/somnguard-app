@@ -1,30 +1,24 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/shared/api/authApi';
-import { ApiError } from '@/shared/api/client';
-import { AppAlertModal } from '@/shared/components/AppAlertModal';
 import SomnGuardLogo from '@/shared/components/SomnGuardLogo';
+import { AppAlertModal } from '@/shared/components/AppAlertModal';
 import { Screen } from '@/shared/components/Screen';
 import { useAppTheme } from '@/shared/theme';
 
-export default function VerifyEmailScreen() {
+export default function VerifyNewEmailScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { email } = useLocalSearchParams<{ email?: string }>();
+  const newEmail = String(email ?? '').trim();
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
-
-  function handleTokenChange(value: string) {
-    // solo números, sin letras/espacios/signos, máx 7
-    const digits = value.replace(/\D/g, '').slice(0, 7);
-    setToken(digits);
-    if (error) setError('');
-  }
 
   async function handleSubmit() {
     const clean = token.trim();
@@ -42,22 +36,23 @@ export default function VerifyEmailScreen() {
       await authApi.verifyEmail(clean);
       setShowSuccess(true);
     } catch (e) {
-      // Manejo de errores: código incorrecto → "Token inválido", otros → mensaje no técnico
-      if (e instanceof ApiError && (e.status === 400 || e.status === 404)) {
-        setError('Token inválido');
-      } else if (e instanceof Error && /Token/i.test(e.message)) {
-        setError('Token inválido');
-      } else {
-        setError('Token inválido');
-      }
+      // Siempre mostrar Token inválido para código incorrecto, sin mensaje técnico
+      setError('Token inválido');
     } finally {
       setIsLoading(false);
     }
   }
 
-  function handleSuccessClose() {
+  async function handleSuccessClose() {
     setShowSuccess(false);
-    router.replace('/(auth)/login');
+    // Cerrar sesión y limpiar auth como indica flujo final
+    try {
+      const { clearTokens } = await import('@/shared/api/client');
+      clearTokens();
+      const { authService } = await import('@/features/auth/services/auth.service');
+      await authService.logout().catch(() => {});
+    } catch {}
+    router.replace('/(auth)/login' as any);
   }
 
   return (
@@ -68,15 +63,19 @@ export default function VerifyEmailScreen() {
         </View>
 
         <View style={styles.messageBlock}>
-          <Text style={styles.messageText}>{t('auth.verifyEmail.messageLine1')}</Text>
-          <Text style={styles.messageText}>{t('auth.verifyEmail.messageLine2')}</Text>
-          <Text style={styles.messageText}>{t('auth.verifyEmail.messageLine3')}</Text>
+          <Text style={styles.messageTitle}>{t('security.verifyNewEmail.title')}</Text>
+          <Text style={styles.messageText}>{t('security.verifyNewEmail.line1', { email: newEmail || t('account.email') })}</Text>
+          <Text style={styles.messageText}>{t('security.verifyNewEmail.line2')}</Text>
+          <Text style={styles.messageText}>{t('security.verifyNewEmail.line3')}</Text>
         </View>
 
         <View style={styles.inputWrapper}>
           <TextInput
             value={token}
-            onChangeText={handleTokenChange}
+            onChangeText={(value) => {
+              setToken(value.replace(/\D/g, '').slice(0, 7));
+              if (error) setError('');
+            }}
             placeholder={t('auth.verifyEmail.tokenPlaceholder')}
             keyboardType="number-pad"
             maxLength={7}
@@ -97,24 +96,15 @@ export default function VerifyEmailScreen() {
           disabled={isLoading}
         >
           <Text style={styles.buttonText}>
-            {isLoading ? t('common.validating') : t('auth.verifyEmail.submit')}
+            {isLoading ? t('common.validating') : t('security.verifyNewEmail.submit')}
           </Text>
         </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
-          style={styles.resendLink}
-          onPress={() => {
-            router.back();
-          }}
-        >
-          <Text style={styles.resendText}>{t('auth.verifyEmail.backToRegister')}</Text>
-        </Pressable>
       </View>
+
       <AppAlertModal
         visible={showSuccess}
-        title={t('auth.verifyEmail.successTitle') || 'Correo verificado'}
-        message={t('auth.verifyEmail.successMessage') || 'Tu correo electrónico fue verificado correctamente. Tu cuenta ya quedó verificada en el sistema.'}
+        title={t('security.verifyNewEmail.successTitle')}
+        message={t('security.verifyNewEmail.successMessage')}
         onRequestClose={handleSuccessClose}
         buttons={[{ text: t('common.confirm'), onPress: handleSuccessClose }]}
       />
@@ -131,11 +121,12 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
       width: '100%',
       paddingHorizontal: 8,
       paddingVertical: 8,
-      gap: 4,
+      gap: 6,
       alignItems: 'center',
     },
+    messageTitle: { color: theme.colors.accent, fontSize: 18, fontWeight: '900', textAlign: 'center', marginBottom: 4 },
     messageText: { color: theme.colors.text, fontSize: 14, fontWeight: '500', lineHeight: 20, textAlign: 'center' },
-    inputWrapper: { width: '100%', marginTop: 40, marginBottom: 16 },
+    inputWrapper: { width: '100%', marginTop: 32, marginBottom: 16 },
     input: {
       width: '100%',
       minHeight: 48,
@@ -165,7 +156,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
     },
     buttonPressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
     buttonDisabled: { opacity: 0.6 },
-    buttonText: { color: theme.colors.accent, fontSize: 20, fontWeight: '900' },
+    buttonText: { color: theme.colors.accent, fontSize: 18, fontWeight: '900' },
     resendLink: { marginTop: 20 },
     resendText: { color: theme.colors.textLink, fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' },
   });
