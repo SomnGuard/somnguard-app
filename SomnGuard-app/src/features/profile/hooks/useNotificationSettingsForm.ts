@@ -4,12 +4,6 @@ import type { NotificationSettings } from '@/features/profile/types/profile.type
 
 const initialSettings: NotificationSettings = {
   push: true,
-  securityAlerts: true,
-  activityAlerts: true,
-  reminders: true,
-  emailNotifications: true,
-  dailySummary: false,
-  criticalAlerts: true,
 };
 
 export function useNotificationSettingsForm(onSuccess: () => void) {

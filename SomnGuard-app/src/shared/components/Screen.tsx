@@ -1,24 +1,29 @@
 import { PropsWithChildren } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ViewStyle } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/shared/theme';
 
-type Props = PropsWithChildren<{ keyboard?: boolean; centered?: boolean; contentStyle?: ViewStyle }>;
+type Props = PropsWithChildren<{ keyboard?: boolean; centered?: boolean; contentStyle?: ViewStyle; scrollable?: boolean }>;
 
-export function Screen({ children, keyboard = false, centered = false, contentStyle }: Props) {
+export function Screen({ children, keyboard = false, centered = false, contentStyle, scrollable = true }: Props) {
   const { theme } = useAppTheme();
-  const insets = useSafeAreaInsets();
   const styles = createStyles(theme);
-  const bottomPadding = Math.max(insets.bottom, theme.spacing.xxl);
-  const content = (
-    <ScrollView
-      style={styles.wrapper}
-      contentContainerStyle={[styles.scroll, { paddingBottom: bottomPadding }, centered && styles.centered, contentStyle]}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
+
+  const content = scrollable ? (
+    <SafeAreaView style={styles.safeWrapper} edges={['top', 'bottom']}>
+      <ScrollView
+        style={styles.wrapper}
+        contentContainerStyle={[styles.scroll, styles.safePadding, centered && styles.centered, contentStyle]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {children}
+      </ScrollView>
+    </SafeAreaView>
+  ) : (
+    <SafeAreaView style={[styles.safeWrapper, styles.safePadding, centered && styles.centered, contentStyle]} edges={['top', 'bottom']}>
       {children}
-    </ScrollView>
+    </SafeAreaView>
   );
 
   if (!keyboard) return content;
@@ -33,7 +38,10 @@ export function Screen({ children, keyboard = false, centered = false, contentSt
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
   wrapper: { flex: 1, backgroundColor: theme.colors.background },
+  safeWrapper: { flex: 1, backgroundColor: theme.colors.background },
+  staticWrapper: { flex: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.xl },
   scroll: { flexGrow: 1, backgroundColor: theme.colors.background, paddingHorizontal: theme.spacing.xl },
+  safePadding: { paddingTop: 12, paddingBottom: 12 },
   centered: { justifyContent: 'center' },
   });
 }
