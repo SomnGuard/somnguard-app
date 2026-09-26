@@ -18,6 +18,7 @@ function TabIcon({ icon, label, focused }: TabIconProps) {
     <View style={styles.tabItem}>
       <Ionicons name={icon} size={focused ? 26 : 24} color={theme.colors.accent} />
       <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]} numberOfLines={1} adjustsFontSizeToFit>{label}</Text>
+      <View style={[styles.tabIndicator, focused && styles.tabIndicatorActive]} />
     </View>
   );
 }
@@ -44,6 +45,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme'], bottomInse
   tabBarItem: { flex: 1, height: 54, justifyContent: 'center', alignItems: 'center', paddingVertical: 4, paddingHorizontal: 2 },
   tabItem: { flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: 2 },
   tabLabel: { color: theme.colors.accent, fontSize: 10, fontWeight: '700', textAlign: 'center', width: '100%', lineHeight: 12 },
-  tabLabelFocused: { fontWeight: '800' },
+  tabLabelFocused: { color: theme.colors.accent, fontWeight: '600' },
+  tabIndicator: { width: 22, height: 2, borderRadius: 2, backgroundColor: 'transparent', marginTop: 3 },
+  tabIndicatorActive: { backgroundColor: theme.colors.accent },
   });
 }

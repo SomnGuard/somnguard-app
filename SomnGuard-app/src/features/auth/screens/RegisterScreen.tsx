@@ -6,7 +6,7 @@ import { AppButton } from '@/shared/components/AppButton';
 import { AppTextInput } from '@/shared/components/AppTextInput';
 import { Screen } from '@/shared/components/Screen';
 import { useAppTheme } from '@/shared/theme';
-import { useRegisterForm } from '@/features/auth/hooks/useRegisterForm';
+import { getPasswordStrengthLabel, useRegisterForm } from '@/features/auth/hooks/useRegisterForm';
 import Checkbox from 'expo-checkbox';
 
 export default function RegisterScreen() {
@@ -19,7 +19,7 @@ export default function RegisterScreen() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState('');
 
-  const { form, errors, isSubmitting, updateField, submit } = useRegisterForm(() => {
+  const { form, errors, isSubmitting, updateField, submit, passwordStrength } = useRegisterForm(() => {
     router.push('/(auth)/verify-email' as any);
   });
 
@@ -43,6 +43,9 @@ export default function RegisterScreen() {
       </View>
       <AppTextInput placeholder={t('auth.register.email')} value={form.email} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} error={errors.email} onChangeText={(text) => updateField('email', text)} />
       <AppTextInput placeholder={t('auth.register.password')} value={form.password} secureTextEntry error={errors.password} onChangeText={(text) => updateField('password', text)} />
+      {!!form.password && (
+        <PasswordStrengthBar level={passwordStrength.level} label={getPasswordStrengthLabel(passwordStrength.level, t)} />
+      )}
       <AppTextInput placeholder={t('auth.register.confirmPassword')} value={form.confirmPassword} secureTextEntry error={errors.confirmPassword} onChangeText={(text) => updateField('confirmPassword', text)} />
       {!!errors.general && <Text style={styles.formError}>{errors.general}</Text>}
       <Text style={styles.phoneLabel}>{t('auth.register.phone')}</Text>
@@ -70,6 +73,20 @@ export default function RegisterScreen() {
 
       <View style={styles.buttonWrap}><AppButton title={isSubmitting ? t('common.submitting') : t('common.submit')} onPress={handleSubmit} /></View>
     </Screen>
+  );
+}
+
+function PasswordStrengthBar({ level, label }: { level: 'weak' | 'medium' | 'good' | 'strong'; label: string }) {
+  const { theme } = useAppTheme();
+  const colors: Record<string, string> = { weak: '#D32F2F', medium: '#F9A825', good: '#1976D2', strong: '#00A86B' };
+  const widths: Record<string, string> = { weak: '25%', medium: '50%', good: '75%', strong: '100%' };
+  return (
+    <View style={{ gap: 6, marginTop: -4, marginBottom: 8 }}>
+      <View style={{ height: 6, borderRadius: 6, backgroundColor: theme.colors.input, overflow: 'hidden' }}>
+        <View style={{ height: 6, width: widths[level] as any, backgroundColor: colors[level], borderRadius: 6 }} />
+      </View>
+      <Text style={{ color: colors[level], fontSize: 11, fontWeight: '800' }}>{label}</Text>
+    </View>
   );
 }
 

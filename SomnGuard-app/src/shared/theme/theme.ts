@@ -52,6 +52,39 @@ export const Colors = {
   },
 };
 
+export const AlertSeverity = {
+  INFO: '#00C8C8',
+  WARNING: '#F9A825',
+  HIGH: '#F57C00',
+  CRITICAL: '#D32F2F',
+} as const;
+
+export type AlertSeverityType = keyof typeof AlertSeverity;
+
+export function getSeverityColor(severity: AlertSeverityType): string {
+  return AlertSeverity[severity];
+}
+
+export function getSeverityBg(severity: AlertSeverityType, alpha = 0.12): string {
+  const hex = AlertSeverity[severity].replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+export const ButtonColors = {
+  confirm: '#00A86B',
+  cancel: '#495663',
+  delete: '#D32F2F',
+  edit: '#1976D2',
+  continue: '#008F8F',
+  close: '#607D8B',
+  disabled: '#9E9E9E',
+} as const;
+
+export type ButtonVariant = keyof typeof ButtonColors | 'primary' | 'outline' | 'danger';
+
 export const theme = {
   colors: Colors.dark,
   spacing: {

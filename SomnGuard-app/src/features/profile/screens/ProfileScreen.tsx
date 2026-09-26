@@ -17,6 +17,7 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { labelKey: 'profile.menu.account', route: 'cuenta', icon: 'person' },
+  { labelKey: 'profile.menu.device', route: 'dispositivo', icon: 'hardware-chip-outline' },
   { labelKey: 'profile.menu.security', route: 'seguridad', icon: 'shield-outline' },
   { labelKey: 'profile.menu.preferences', route: 'preferencias', icon: 'options-outline' },
   { labelKey: 'profile.menu.notifications', route: 'notificaciones', icon: 'notifications' },

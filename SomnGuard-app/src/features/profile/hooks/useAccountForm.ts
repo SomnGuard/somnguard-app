@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { profileService } from '@/features/profile/services/profile.service';
+import type { DeviceResponse } from '@/shared/api/devicesApi';
 import type { AccountErrors, AccountForm, DeviceInfo } from '@/features/profile/types/profile.types';
 import { isRequired, isValidColombianPhone, onlyDigits } from '@/shared/utils/validation';
 
@@ -22,9 +23,28 @@ export function useAccountForm(onSuccess: (form: AccountForm) => void) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [device, setDevice] = useState<DeviceInfo | null>(() => profileService.getDevice());
+  const [devices, setDevices] = useState<DeviceResponse[]>(() => profileService.getDevices());
+  const [isLoadingDevices, setIsLoadingDevices] = useState(false);
+  const [devicesError, setDevicesError] = useState<string | undefined>(undefined);
   const [deviceCode, setDeviceCode] = useState('');
   const [deviceError, setDeviceError] = useState<string | undefined>(undefined);
   const [isLinking, setIsLinking] = useState(false);
+  const [deviceLinked, setDeviceLinked] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
+
+  async function refreshDevices(): Promise<void> {
+    try {
+      setIsLoadingDevices(true);
+      setDevicesError(undefined);
+      const list = await profileService.fetchDevices();
+      setDevices(list);
+      setDevice(profileService.getDevice());
+    } catch (e) {
+      setDevicesError(e instanceof Error ? e.message : t('account.errors.deviceLoadFailed'));
+    } finally {
+      setIsLoadingDevices(false);
+    }
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -46,9 +66,11 @@ export function useAccountForm(onSuccess: (form: AccountForm) => void) {
       }
     }
     load();
+    refreshDevices().catch(() => {});
     return () => {
       mounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function updateField<K extends keyof AccountForm>(field: K, value: AccountForm[K]) {
@@ -72,31 +94,28 @@ export function useAccountForm(onSuccess: (form: AccountForm) => void) {
     }
   }
 
-  function formatDeviceCode(value: string): string {
-    const alphanum = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 13);
-    if (alphanum.length <= 5) return alphanum;
-    if (alphanum.length <= 9) return `${alphanum.slice(0, 5)}-${alphanum.slice(5)}`;
-    return `${alphanum.slice(0, 5)}-${alphanum.slice(5, 9)}-${alphanum.slice(9)}`;
-  }
-
   function updateDeviceCode(value: string) {
-    const formatted = formatDeviceCode(value);
-    setDeviceCode(formatted);
+    // El formato real lo define el backend (ClaimDeviceRequest.claimCode) - solo trim + tope
+    setDeviceCode(value.slice(0, 64));
     setDeviceError(undefined);
   }
 
   async function linkDevice() {
-    const alphanum = deviceCode.replace(/[^A-Za-z0-9]/g, '');
-    if (alphanum.length !== 13 || !/^[A-Za-z0-9]{5}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}$/.test(deviceCode)) {
+    const claimCode = deviceCode.trim();
+    if (!claimCode) {
       setDeviceError(t('account.errors.invalidDeviceCode'));
       return;
     }
     try {
       setIsLinking(true);
-      const linked = await profileService.linkDevice(deviceCode);
+      setDeviceLinked(false);
+      const linked = await profileService.linkDevice(claimCode);
+      setDevices(profileService.getDevices());
       setDevice(linked);
       setDeviceCode('');
       setDeviceError(undefined);
+      setDevicesError(undefined);
+      setDeviceLinked(true);
     } catch (error) {
       setDeviceError(error instanceof Error ? error.message : t('account.errors.deviceLinkFailed'));
     } finally {
@@ -105,9 +124,43 @@ export function useAccountForm(onSuccess: (form: AccountForm) => void) {
   }
 
   async function unlinkDevice() {
-    await profileService.unlinkDevice();
-    setDevice(null);
+    try {
+      setIsUnlinking(true);
+      setDeviceError(undefined);
+      await profileService.unlinkDevice();
+      setDevices(profileService.getDevices());
+      setDevice(profileService.getDevice());
+    } catch (error) {
+      setDeviceError(error instanceof Error ? error.message : t('account.errors.deviceLinkFailed'));
+    } finally {
+      setIsUnlinking(false);
+    }
   }
 
-  return { form, errors, isSubmitting, isLoading, updateField, submit, device, deviceCode, deviceError, isLinking, updateDeviceCode, linkDevice, unlinkDevice };
+  function dismissDeviceLinked() {
+    setDeviceLinked(false);
+  }
+
+  return {
+    form,
+    errors,
+    isSubmitting,
+    isLoading,
+    updateField,
+    submit,
+    device,
+    devices,
+    isLoadingDevices,
+    devicesError,
+    refreshDevices,
+    deviceCode,
+    deviceError,
+    isLinking,
+    deviceLinked,
+    dismissDeviceLinked,
+    isUnlinking,
+    updateDeviceCode,
+    linkDevice,
+    unlinkDevice,
+  };
 }

@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+﻿import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -16,18 +16,33 @@ export default function DashboardScreen() {
   const { isMonitoring } = useMonitoring();
   const { theme } = useAppTheme();
   const [showNoDevice, setShowNoDevice] = useState(false);
+  const [isCheckingDevice, setIsCheckingDevice] = useState(false);
   const styles = createStyles(theme);
 
-  function handleStartMonitoring() {
+  async function handleStartMonitoring() {
     if (isMonitoring) {
       router.push('/(tabs)/monitoring' as any);
       return;
     }
-    if (!profileService.hasLinkedDevice()) {
-      setShowNoDevice(true);
-      return;
+    // Verificar vínculo contra la API (GET /devices), no solo cache local
+    try {
+      setIsCheckingDevice(true);
+      const list = await profileService.fetchDevices();
+      if (list.length === 0) {
+        setShowNoDevice(true);
+        return;
+      }
+      router.push('/(tabs)/monitoring' as any);
+    } catch {
+      // Sin conexión: usar último estado conocido
+      if (!profileService.hasLinkedDevice()) {
+        setShowNoDevice(true);
+        return;
+      }
+      router.push('/(tabs)/monitoring' as any);
+    } finally {
+      setIsCheckingDevice(false);
     }
-    router.push('/(tabs)/monitoring' as any);
   }
 
   return (
@@ -37,7 +52,7 @@ export default function DashboardScreen() {
         <Text style={styles.subtitle}>{t('dashboard.subtitle')}</Text>
       </View>
       <View style={styles.actions}>
-        <AppButton title={isMonitoring ? t('dashboard.stop') : t('dashboard.start')} onPress={handleStartMonitoring} />
+        <AppButton title={isCheckingDevice ? t('common.validating') : isMonitoring ? t('dashboard.stop') : t('dashboard.start')} onPress={handleStartMonitoring} />
         <AppButton title={t('dashboard.history')} onPress={() => router.push('/(tabs)/history')} variant="outline" />
       </View>
       <AppAlertModal
