@@ -18,7 +18,28 @@ export default function AccountScreen() {
   const [showUpdatedModal, setShowUpdatedModal] = useState(false);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
-  const { form, errors, isSubmitting, isLoading, updateField, submit, device, deviceCode, deviceError, isLinking, updateDeviceCode, linkDevice, unlinkDevice } = useAccountForm(() => {
+  const {
+    form,
+    errors,
+    isSubmitting,
+    isLoading,
+    updateField,
+    submit,
+    device,
+    devices,
+    isLoadingDevices,
+    devicesError,
+    refreshDevices,
+    deviceCode,
+    deviceError,
+    isLinking,
+    deviceLinked,
+    dismissDeviceLinked,
+    isUnlinking,
+    updateDeviceCode,
+    linkDevice,
+    unlinkDevice,
+  } = useAccountForm(() => {
     setSaved(true);
     setShowUpdatedModal(true);
   });
@@ -64,18 +85,29 @@ export default function AccountScreen() {
 
         <View style={styles.deviceCard}>
           <Text style={styles.deviceTitle}>{t('account.deviceSection')}</Text>
-          <Text style={styles.deviceDescription}>{t('account.deviceDescription')}</Text>
-          {device ? (
+          {isLoadingDevices ? (
+            <View style={styles.loadingWrap}>
+              <ActivityIndicator color={theme.colors.accent} size="small" />
+              <Text style={styles.loadingText}>{t('common.validating')}</Text>
+            </View>
+          ) : devicesError && !device ? (
+            <View style={styles.deviceInfo}>
+              <Text style={styles.deviceErrorText}>{devicesError}</Text>
+              <View style={styles.buttonWrap}>
+                <AppButton title={t('common.retry')} variant="outline" onPress={refreshDevices} />
+              </View>
+            </View>
+          ) : device ? (
             <View style={styles.deviceInfo}>
               <View style={styles.deviceInfoRow}>
                 <Ionicons name="hardware-chip-outline" size={20} color={theme.colors.accent} />
                 <Text style={styles.deviceInfoLabel}>{t('account.deviceName')}: </Text>
-                <Text style={styles.deviceInfoValue}>{device.name}</Text>
+                <Text style={styles.deviceInfoValue} numberOfLines={1}>{device.name}</Text>
               </View>
               <View style={styles.deviceInfoRow}>
                 <Ionicons name="barcode-outline" size={20} color={theme.colors.accent} />
                 <Text style={styles.deviceInfoLabel}>{t('account.deviceId')}: </Text>
-                <Text style={styles.deviceInfoValue}>{device.id}</Text>
+                <Text style={styles.deviceInfoValue} numberOfLines={1}>{device.id.slice(0, 8)}…</Text>
               </View>
               <View style={styles.deviceInfoRow}>
                 <Ionicons name="pulse-outline" size={20} color={theme.colors.accent} />
@@ -86,13 +118,19 @@ export default function AccountScreen() {
                 <Ionicons name="calendar-outline" size={20} color={theme.colors.accent} />
                 <Text style={styles.deviceInfoValue}>{new Date(device.linkedAt).toLocaleDateString()}</Text>
               </View>
+              {devices.length > 1 && (
+                <Text style={styles.deviceHelp}>+{devices.length - 1} {t('account.deviceMore')}</Text>
+              )}
+              {!!deviceError && <Text style={styles.deviceErrorText}>{deviceError}</Text>}
               <View style={styles.buttonWrap}>
-                <AppButton title={t('account.deviceUnlink')} variant="outline" onPress={unlinkDevice} />
+                <AppButton title={isUnlinking ? t('common.saving') : t('account.deviceUnlink')} variant="outline" onPress={unlinkDevice} />
               </View>
             </View>
           ) : (
             <>
-              <AppTextInput label={t('account.deviceCode')} placeholder={t('account.deviceCodePlaceholder')} value={deviceCode} keyboardType="default" autoCapitalize="none" maxLength={15} error={deviceError} onChangeText={updateDeviceCode} />
+              <Text style={styles.deviceDescription}>{t('account.deviceDescription')}</Text>
+              <Text style={styles.deviceEmpty}>{t('account.deviceNoLinked')}</Text>
+              <AppTextInput label={t('account.deviceCode')} placeholder={t('account.deviceCodePlaceholder')} value={deviceCode} keyboardType="default" autoCapitalize="none" autoCorrect={false} maxLength={64} error={deviceError} onChangeText={updateDeviceCode} />
               <Text style={styles.deviceHelp}>{t('account.deviceHelp')}</Text>
               <View style={styles.buttonWrap}>
                 <AppButton title={isLinking ? t('common.saving') : t('account.deviceLink')} onPress={linkDevice} />
@@ -118,6 +156,13 @@ export default function AccountScreen() {
         onRequestClose={() => setShowUpdatedModal(false)}
         buttons={[{ text: t('common.confirm'), onPress: () => setShowUpdatedModal(false) }]}
       />
+      <AppAlertModal
+        visible={deviceLinked}
+        title={t('account.deviceLinkedTitle')}
+        message={t('account.deviceLinkedMessage')}
+        onRequestClose={dismissDeviceLinked}
+        buttons={[{ text: t('common.confirm'), style: 'confirm', onPress: dismissDeviceLinked }]}
+      />
     </Screen>
   );
 }
@@ -138,6 +183,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   deviceTitle: { color: theme.colors.accent, fontSize: 18, fontWeight: '900' },
   deviceDescription: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18 },
   deviceHelp: { color: theme.colors.textMuted, fontSize: theme.fontSize.xs, marginTop: -8 },
+  deviceEmpty: { color: theme.colors.text, fontSize: theme.fontSize.sm, fontWeight: '800', textAlign: 'center', marginVertical: 4 },
+  deviceErrorText: { color: theme.colors.error, fontSize: theme.fontSize.xs, fontWeight: '700', textAlign: 'center' },
   deviceInfo: { gap: 10, marginTop: 8 },
   deviceInfoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   deviceInfoLabel: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, fontWeight: '700' },

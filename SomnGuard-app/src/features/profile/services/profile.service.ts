@@ -1,9 +1,30 @@
 import type { AccountForm, DeviceInfo, NotificationSettings, PreferencesForm } from '@/features/profile/types/profile.types';
 import { i18n } from '@/shared/i18n';
 import { usersApi, type UserMeResponse } from '@/shared/api/usersApi';
+import { devicesApi, type DeviceResponse } from '@/shared/api/devicesApi';
 import { ApiError } from '@/shared/api/client';
 
-let linkedDevice: DeviceInfo | null = null;
+// Dispositivos vinculados del usuario (GET /api/v1/devices)
+let linkedDevices: DeviceResponse[] = [];
+
+function mapDeviceToInfo(device: DeviceResponse): DeviceInfo {
+  return {
+    id: device.id,
+    name: device.serialNumber || device.id,
+    status: device.statusCategory === 'active' || device.status === 'ASSIGNED' ? 'connected' : 'disconnected',
+    code: device.claimCode ?? device.serialNumber ?? '',
+    linkedAt: device.assignedAt ?? device.createdAt ?? new Date().toISOString(),
+  };
+}
+
+function toDeviceError(e: unknown): Error {
+  if (e instanceof ApiError && e.status === 0) return new Error(i18n.t('common.connectionError'));
+  if (e instanceof ApiError && e.status === 404) return new Error(i18n.t('account.errors.deviceClaimNotFound'));
+  if (e instanceof ApiError && e.status === 409) return new Error(i18n.t('account.errors.deviceClaimConflict'));
+  if (e instanceof ApiError && e.status === 400) return new Error(i18n.t('account.errors.deviceClaimInvalid'));
+  if (e instanceof ApiError) return new Error(e.message);
+  return e instanceof Error ? e : new Error(i18n.t('account.errors.deviceLinkFailed'));
+}
 
 type CachedProfile = {
   firstName: string;
@@ -75,6 +96,7 @@ export const profileService = {
       currentProfile = { ...currentProfile, firstName: updated.firstName, lastName: updated.lastName, name: `${updated.firstName} ${updated.lastName}`.trim(), email: updated.email, phone: updated.phone ?? '' };
       return mapUserMeToAccountForm(updated);
     } catch (e) {
+      if (e instanceof ApiError && e.status === 0) throw new Error(i18n.t('common.connectionError'));
       if (e instanceof ApiError) throw new Error(e.message);
       throw e instanceof Error ? e : new Error(i18n.t('account.errors.updateFailed'));
     }
@@ -87,6 +109,7 @@ export const profileService = {
       currentProfile = { ...currentProfile, email: updated.email, firstName: updated.firstName, lastName: updated.lastName, name: `${updated.firstName} ${updated.lastName}`.trim() };
       return updated;
     } catch (e) {
+      if (e instanceof ApiError && e.status === 0) throw new Error(i18n.t('common.connectionError'));
       if (e instanceof ApiError) throw new Error(e.message);
       throw e instanceof Error ? e : new Error(i18n.t('security.errors.updateFailed'));
     }
@@ -96,8 +119,9 @@ export const profileService = {
     try {
       await usersApi.deleteMe();
       currentProfile = { ...emptyProfile };
-      linkedDevice = null;
+      linkedDevices = [];
     } catch (e) {
+      if (e instanceof ApiError && e.status === 0) throw new Error(i18n.t('common.connectionError'));
       if (e instanceof ApiError) throw new Error(e.message);
       throw e instanceof Error ? e : new Error(i18n.t('security.errors.updateFailed'));
     }
@@ -115,30 +139,58 @@ export const profileService = {
     return i18n.t('privacy.downloadAlertMessage');
   },
 
+  // GET /api/v1/devices - consulta dispositivos vinculados y actualiza cache
+  async fetchDevices(): Promise<DeviceResponse[]> {
+    try {
+      linkedDevices = await devicesApi.listMyDevices();
+      return linkedDevices;
+    } catch (e) {
+      if (e instanceof ApiError) throw e;
+      throw e;
+    }
+  },
+
+  getDevices(): DeviceResponse[] {
+    return linkedDevices;
+  },
+
   getDevice(): DeviceInfo | null {
-    return linkedDevice;
+    const first = linkedDevices[0];
+    return first ? mapDeviceToInfo(first) : null;
   },
 
   hasLinkedDevice(): boolean {
-    return linkedDevice !== null;
+    return linkedDevices.length > 0;
   },
 
+  // POST /api/v1/devices/claim { claimCode } - vincula y refresca lista
   async linkDevice(code: string): Promise<DeviceInfo> {
-    const alphanum = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    if (alphanum.length !== 13) throw new Error(i18n.t('account.errors.invalidDeviceCode'));
-    if (!/^[A-Za-z0-9]{5}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}$/.test(code)) throw new Error(i18n.t('account.errors.invalidDeviceCode'));
-    linkedDevice = {
-      id: `DEV-${alphanum.slice(0, 5)}-${alphanum.slice(5, 9)}`,
-      name: `SomnGuard Device ${alphanum.slice(-4)}`,
-      status: 'connected',
-      code: code.toUpperCase(), // conservar formato xxxxx-xxxx-xxxx alfanumérico
-      linkedAt: new Date().toISOString(),
-    };
-    return linkedDevice;
+    const claimCode = code.trim();
+    if (!claimCode) throw new Error(i18n.t('account.errors.invalidDeviceCode'));
+    try {
+      await devicesApi.claimDevice(claimCode);
+      await this.fetchDevices();
+      const linked = this.getDevice();
+      if (!linked) throw new Error(i18n.t('account.errors.deviceLinkFailed'));
+      return linked;
+    } catch (e) {
+      throw toDeviceError(e);
+    }
   },
 
+  // POST /api/v1/devices/{id}/unassign - desvincula y refresca lista
   async unlinkDevice(): Promise<void> {
-    linkedDevice = null;
+    const first = linkedDevices[0];
+    if (!first) {
+      linkedDevices = [];
+      return;
+    }
+    try {
+      await devicesApi.unassignDevice(first.id);
+      await this.fetchDevices();
+    } catch (e) {
+      throw toDeviceError(e);
+    }
   },
 };
 

@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, Text, View } from 'react-native';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { AppAlertModal } from '@/shared/components/AppAlertModal';
 import { AppButton } from '@/shared/components/AppButton';
 import { Screen } from '@/shared/components/Screen';
-import { dailyAlerts } from '@/features/monitoring/mocks/monitoring.mock';
 import { useAppTheme } from '@/shared/theme';
+import { getSeverityBg } from '@/shared/theme/theme';
 import { useMonitoring } from '@/features/monitoring/hooks/useMonitoring';
 import { profileService } from '@/features/profile/services/profile.service';
+import { eventsApi, type EventDetailDto } from '@/shared/api/eventsApi';
+import { formatEventTime, severityColor, toAlertSeverity } from '@/shared/utils/eventDisplay';
 
 export default function MonitoringScreen() {
   const { t } = useTranslation();
@@ -20,12 +22,51 @@ export default function MonitoringScreen() {
   const pulse = pulseRef.current;
   const { theme } = useAppTheme();
   const [showNoDevice, setShowNoDevice] = useState(false);
+  const [dailyEvents, setDailyEvents] = useState<EventDetailDto[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [eventsError, setEventsError] = useState<string | undefined>(undefined);
+  const [hasDevice, setHasDevice] = useState(false);
   const styles = createStyles(theme);
 
-  function handleToggle() {
-    if (!isMonitoring && !profileService.hasLinkedDevice()) {
-      setShowNoDevice(true);
-      return;
+  const loadDailyEvents = useCallback(async () => {
+    try {
+      setIsLoadingEvents(true);
+      setEventsError(undefined);
+      const list = await profileService.fetchDevices();
+      const first = list[0] ?? null;
+      setHasDevice(!!first);
+      if (!first) {
+        setDailyEvents([]);
+        return;
+      }
+      setDailyEvents(await eventsApi.listTodayEvents(first.id, 20));
+    } catch (e) {
+      setEventsError(e instanceof Error ? e.message : t('monitoring.emptyDaily'));
+    } finally {
+      setIsLoadingEvents(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    loadDailyEvents();
+  }, [loadDailyEvents]);
+
+  async function handleToggle() {
+    if (!isMonitoring) {
+      // Verificar vínculo contra la API (GET /devices), no solo cache local
+      try {
+        const list = await profileService.fetchDevices();
+        if (list.length === 0) {
+          setShowNoDevice(true);
+          return;
+        }
+      } catch {
+        if (!profileService.hasLinkedDevice()) {
+          setShowNoDevice(true);
+          return;
+        }
+      }
     }
     toggleMonitoring();
   }
@@ -52,18 +93,50 @@ export default function MonitoringScreen() {
         <Text style={styles.viewerText}>{isMonitoring ? t('monitoring.monitoring') : t('monitoring.cameraInactive')}</Text>
       </View>
       <View style={styles.dailyCard}>
-        <Text style={styles.dailyTitle}>{t('monitoring.dailyAlerts')}</Text>
-        <ScrollView style={styles.dailyScroll} contentContainerStyle={styles.dailyContent} showsVerticalScrollIndicator={false} nestedScrollEnabled>
-          {dailyAlerts.map((alert) => (
-            <View key={alert.id} style={[styles.alertRow, alert.tone === 'danger' && styles.alertDanger, alert.tone === 'warning' && styles.alertWarning]}>
-              <View style={styles.alertLeft}>
-                <Text style={styles.alertType}>{alert.type}</Text>
-                <Text style={styles.alertDetail}>{alert.detail}</Text>
-              </View>
-              <Text style={styles.alertTime}>{alert.time}</Text>
-            </View>
-          ))}
-        </ScrollView>
+        <View style={styles.dailyHeader}>
+          <Text style={styles.dailyTitle}>{t('monitoring.dailyAlerts')}</Text>
+          <Pressable accessibilityRole="button" onPress={loadDailyEvents} style={styles.refreshButton}>
+            <Text style={styles.refreshText}>↻</Text>
+          </Pressable>
+        </View>
+        {isLoadingEvents ? (
+          <View style={styles.dailyCenter}>
+            <ActivityIndicator color={theme.colors.accent} size="small" />
+          </View>
+        ) : eventsError ? (
+          <View style={styles.dailyCenter}>
+            <Text style={styles.dailyError}>{eventsError}</Text>
+            <Pressable accessibilityRole="button" onPress={loadDailyEvents}>
+              <Text style={styles.retryText}>{t('common.retry')}</Text>
+            </Pressable>
+          </View>
+        ) : !hasDevice || dailyEvents.length === 0 ? (
+          <View style={styles.dailyCenter}>
+            <Text style={styles.dailyEmpty}>{!hasDevice ? t('dashboard.noDeviceMessage') : t('monitoring.emptyDaily')}</Text>
+          </View>
+        ) : (
+          <ScrollView style={styles.dailyScroll} contentContainerStyle={styles.dailyContent} showsVerticalScrollIndicator={false} nestedScrollEnabled>
+            {dailyEvents.map((event) => {
+              const color = severityColor(event.severity?.code);
+              const severity = toAlertSeverity(event.severity?.code);
+              return (
+                <View key={event.id} style={[styles.alertRow, { borderColor: color, backgroundColor: getSeverityBg(severity) }]}>
+                  <View style={[styles.severityDot, { backgroundColor: color }]} />
+                  <View style={styles.alertLeft}>
+                    <Text style={[styles.alertType, { color }]} numberOfLines={1}>
+                      {event.eventType?.name || event.eventType?.code || '—'}
+                    </Text>
+                    <Text style={styles.alertDetail} numberOfLines={2}>
+                      {event.severity?.name || event.severity?.code || ''}
+                      {event.hasEvidence ? ' · ✓' : ''}
+                    </Text>
+                  </View>
+                  <Text style={styles.alertTime}>{formatEventTime(event.occurredAt)}</Text>
+                </View>
+              );
+            })}
+          </ScrollView>
+        )}
       </View>
       <View style={styles.action}>
         <AppButton title={isMonitoring ? t('dashboard.stop') : t('dashboard.start')} onPress={handleToggle} />
@@ -96,12 +169,18 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   eyeInnerActive: { backgroundColor: theme.colors.accent },
   viewerText: { position: 'absolute', bottom: 18, color: theme.colors.textMuted, fontSize: theme.fontSize.xs, fontWeight: '800', letterSpacing: 2 },
   dailyCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, borderWidth: 1, borderColor: theme.colors.border, padding: theme.spacing.md, marginBottom: theme.spacing.md, flex: 1, minHeight: 120, maxHeight: 220 },
-  dailyTitle: { color: theme.colors.accent, fontSize: theme.fontSize.md, fontWeight: '900', marginBottom: 10 },
+  dailyHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  dailyTitle: { color: theme.colors.accent, fontSize: theme.fontSize.md, fontWeight: '900' },
+  refreshButton: { padding: 4 },
+  refreshText: { color: theme.colors.accent, fontSize: 18, fontWeight: '900' },
+  dailyCenter: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12 },
+  dailyEmpty: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, textAlign: 'center' },
+  dailyError: { color: theme.colors.error, fontSize: theme.fontSize.sm, fontWeight: '700', textAlign: 'center' },
+  retryText: { color: theme.colors.textLink, fontSize: theme.fontSize.sm, fontWeight: '700', textDecorationLine: 'underline' },
   dailyScroll: { flex: 1 },
   dailyContent: { gap: 8, paddingBottom: 4 },
   alertRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.colors.background, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.colors.border },
-  alertDanger: { borderColor: 'rgba(255,50,50,0.4)', backgroundColor: 'rgba(255,50,50,0.08)' },
-  alertWarning: { borderColor: 'rgba(255,153,0,0.4)', backgroundColor: 'rgba(255,153,0,0.08)' },
+  severityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 10 },
   alertLeft: { flex: 1, paddingRight: 8 },
   alertType: { color: theme.colors.accent, fontSize: theme.fontSize.sm, fontWeight: '800' },
   alertDetail: { color: theme.colors.textMuted, fontSize: theme.fontSize.xs, marginTop: 2 },

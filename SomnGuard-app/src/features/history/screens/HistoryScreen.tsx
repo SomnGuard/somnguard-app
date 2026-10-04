@@ -1,10 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/shared/components/Screen';
-import { historyEvents } from '@/features/history/mocks/history.mock';
+import { AppButton } from '@/shared/components/AppButton';
 import { useAppTheme } from '@/shared/theme';
+import { getSeverityBg } from '@/shared/theme/theme';
+import { profileService } from '@/features/profile/services/profile.service';
+import { eventsApi, type EventDetailDto } from '@/shared/api/eventsApi';
+import {
+  categoryIcon,
+  eventCategoryOf,
+  eventDateKey,
+  formatEventTime,
+  severityColor,
+  toAlertSeverity,
+} from '@/shared/utils/eventDisplay';
 
 const filterTypes = [
   { id: 'all', labelKey: 'history.filters.types.all' },
@@ -27,11 +39,12 @@ function parseDateInput(value: string): Date | null {
   return isNaN(date.getTime()) ? null : date;
 }
 
-function isInRange(eventDate: string, from: string, to: string): boolean {
-  const event = new Date(eventDate);
+function isInRange(eventDateKey: string, from: string, to: string): boolean {
+  if (!eventDateKey) return true;
+  const event = new Date(`${eventDateKey}T00:00:00`);
   const fromDate = parseDateInput(from);
   const toDate = parseDateInput(to);
-  if (fromDate && event < fromDate) return false;
+  if (fromDate && event < new Date(fromDate.setHours(0, 0, 0, 0))) return false;
   if (toDate) {
     const end = new Date(toDate);
     end.setHours(23, 59, 59, 999);
@@ -41,12 +54,41 @@ function isInRange(eventDate: string, from: string, to: string): boolean {
 }
 
 export default function HistoryScreen() {
+  const router = useRouter();
   const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [events, setEvents] = useState<EventDetailDto[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | undefined>(undefined);
+  const [hasDevice, setHasDevice] = useState(false);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
+
+  async function load() {
+    try {
+      setIsLoading(true);
+      setLoadError(undefined);
+      const list = await profileService.fetchDevices();
+      const first = list[0] ?? null;
+      setHasDevice(!!first);
+      if (!first) {
+        setEvents([]);
+        return;
+      }
+      setEvents(await eventsApi.listEvents({ deviceId: first.id, pageSize: 50 }));
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t('history.filters.noResults'));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function resetFilters() {
     setSelectedType('all');
@@ -54,9 +96,10 @@ export default function HistoryScreen() {
     setToDate('');
   }
 
-  const filteredEvents = historyEvents.filter((event) => {
-    const typeMatch = selectedType === 'all' || event.type === selectedType;
-    const dateMatch = isInRange(event.date, fromDate, toDate);
+  const filteredEvents = events.filter((event) => {
+    const category = eventCategoryOf(event.eventType?.code, event.eventType?.name);
+    const typeMatch = selectedType === 'all' || category === selectedType;
+    const dateMatch = isInRange(eventDateKey(event.occurredAt), fromDate, toDate);
     return typeMatch && dateMatch;
   });
 
@@ -93,20 +136,56 @@ export default function HistoryScreen() {
       </View>
 
       <View style={styles.eventsList}>
-        {filteredEvents.length === 0 && <Text style={styles.emptyText}>{t('history.filters.noResults')}</Text>}
-        {filteredEvents.map((event) => (
-          <View key={event.id} style={[styles.eventCard, event.tone === 'danger' ? styles.eventDanger : styles.eventInfo]}>
-            <View style={styles.eventIconWrap}>
-              <Ionicons name={event.icon} size={38} color="#ffffff" />
-            </View>
-            <View style={styles.eventBody}>
-              <Text style={styles.eventTitle}>{t(event.titleKey)}</Text>
-              <Text style={styles.eventSummary}>{t(event.summaryKey)}</Text>
-              <Text style={styles.eventDetail}>{t(event.detailKey)}</Text>
-            </View>
-            <Text style={styles.eventTime}>{t(event.timeKey)}</Text>
+        {isLoading ? (
+          <View style={styles.centerWrap}>
+            <ActivityIndicator color={theme.colors.accent} size="small" />
+            <Text style={styles.emptyText}>{t('common.validating')}</Text>
           </View>
-        ))}
+        ) : loadError ? (
+          <View style={styles.centerWrap}>
+            <Text style={styles.errorText}>{loadError}</Text>
+            <View style={styles.retryWrap}>
+              <AppButton title={t('common.retry')} variant="outline" onPress={load} />
+            </View>
+          </View>
+        ) : !hasDevice ? (
+          <View style={styles.centerWrap}>
+            <Text style={styles.emptyText}>{t('device.notLinked')}</Text>
+            <View style={styles.retryWrap}>
+              <AppButton title={t('device.goToAccount')} variant="confirm" onPress={() => router.push('/profile/cuenta' as any)} />
+            </View>
+          </View>
+        ) : (
+          <>
+            {filteredEvents.length === 0 && <Text style={styles.emptyText}>{t('history.filters.noResults')}</Text>}
+            {filteredEvents.map((event) => {
+              const severity = toAlertSeverity(event.severity?.code);
+              const color = severityColor(event.severity?.code);
+              const category = eventCategoryOf(event.eventType?.code, event.eventType?.name);
+              return (
+                <View key={event.id} style={[styles.eventCard, { borderColor: color, backgroundColor: getSeverityBg(severity, 0.12) }]}>
+                  <View style={[styles.severityDot, { backgroundColor: color }]} />
+                  <View style={styles.eventIconWrap}>
+                    <Ionicons name={categoryIcon(category)} size={20} color={color} />
+                  </View>
+                  <View style={styles.eventBody}>
+                    <Text style={[styles.eventTitle, { color }]} numberOfLines={1}>
+                      {event.eventType?.name || event.eventType?.code || '—'}
+                    </Text>
+                    <Text style={styles.eventSummary} numberOfLines={1}>
+                      {event.severity?.name || event.severity?.code || ''}
+                    </Text>
+                    <Text style={styles.eventDetail} numberOfLines={2}>
+                      {event.occurredAt ? new Date(event.occurredAt).toLocaleString() : ''}
+                      {event.hasEvidence ? ' · ✓' : ''}
+                    </Text>
+                  </View>
+                  <Text style={styles.eventTime}>{formatEventTime(event.occurredAt)}</Text>
+                </View>
+              );
+            })}
+          </>
+        )}
       </View>
     </Screen>
   );
@@ -143,15 +222,17 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
     chipText: { color: theme.colors.header, fontSize: 13, fontWeight: '900' },
     chipTextSelected: { color: '#ffffff' },
     eventsList: { gap: 11, paddingBottom: 12 },
+    centerWrap: { alignItems: 'center', gap: 12, paddingVertical: 20 },
+    retryWrap: { width: '100%', maxWidth: 280 },
     emptyText: { color: theme.colors.textMuted, fontSize: 14, textAlign: 'center', marginTop: 20 },
-    eventCard: { minHeight: 70, borderRadius: 15, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 9, elevation: 5 },
-    eventDanger: { backgroundColor: '#d30610', shadowColor: '#ff1b1b' },
-    eventInfo: { backgroundColor: theme.colors.header },
-    eventIconWrap: { width: 38, alignItems: 'center', marginRight: 10 },
+    errorText: { color: theme.colors.error, fontSize: 14, fontWeight: '700', textAlign: 'center' },
+    eventCard: { minHeight: 70, borderRadius: 12, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border },
+    severityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
+    eventIconWrap: { width: 28, alignItems: 'center', marginRight: 8 },
     eventBody: { flex: 1 },
-    eventTitle: { color: '#ffffff', fontSize: 17, fontWeight: '900', marginBottom: 4 },
-    eventSummary: { color: '#ffffff', fontSize: 10, fontWeight: '900', marginBottom: 3 },
-    eventDetail: { color: '#ffffff', fontSize: 10, fontWeight: '900' },
-    eventTime: { color: '#ffffff', fontSize: 12, fontWeight: '900', marginLeft: 10 },
+    eventTitle: { fontSize: 14, fontWeight: '900', marginBottom: 2 },
+    eventSummary: { color: theme.colors.text, fontSize: 12, fontWeight: '700', marginBottom: 2 },
+    eventDetail: { color: theme.colors.textMuted, fontSize: 11, fontWeight: '500' },
+    eventTime: { color: theme.colors.text, fontSize: 12, fontWeight: '800', marginLeft: 10 },
   });
 }
