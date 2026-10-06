@@ -1,17 +1,18 @@
-import { PropsWithChildren } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { PropsWithChildren, type RefObject } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/shared/theme';
 
-type Props = PropsWithChildren<{ keyboard?: boolean; centered?: boolean; contentStyle?: ViewStyle; scrollable?: boolean }>;
+type Props = PropsWithChildren<{ keyboard?: boolean; centered?: boolean; contentStyle?: ViewStyle; scrollable?: boolean; scrollRef?: RefObject<ScrollView | null> }>;
 
-export function Screen({ children, keyboard = false, centered = false, contentStyle, scrollable = true }: Props) {
+export function Screen({ children, keyboard = false, centered = false, contentStyle, scrollable = true, scrollRef }: Props) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
 
   const content = scrollable ? (
     <SafeAreaView style={styles.safeWrapper} edges={['top', 'bottom']}>
       <ScrollView
+        ref={scrollRef}
         style={styles.wrapper}
         contentContainerStyle={[styles.scroll, styles.safePadding, centered && styles.centered, contentStyle]}
         keyboardShouldPersistTaps="handled"
