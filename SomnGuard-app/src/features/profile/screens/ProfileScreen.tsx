@@ -96,7 +96,7 @@ export default function ProfileScreen() {
         </View>
 
         <Pressable accessibilityRole="button" style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]} onPress={() => setShowLogoutModal(true)}>
-          <Ionicons name="log-out-outline" size={26} color={theme.colors.accent} />
+          <Ionicons name="log-out-outline" size={26} color={ '#fff'} />
           <Text style={styles.logoutText} numberOfLines={1} adjustsFontSizeToFit>{t('profile.logout')}</Text>
         </Pressable>
       </View>
@@ -139,15 +139,16 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   pressed: { opacity: 0.82, transform: [{ scale: 0.99 }] },
   menuIcon: { width: 32, marginRight: 12, textAlign: 'center' },
   menuLabel: { flex: 1, color: theme.colors.accent, fontSize: 15, fontWeight: '800', textAlign: 'left' },
-  logoutButton: { minHeight: 54, borderRadius: 16, backgroundColor: theme.colors.header, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, paddingHorizontal: 14, paddingVertical: 10, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 7, elevation: 4 },
-  logoutText: { color: theme.colors.accent, fontSize: 16, fontWeight: '800', textAlign: 'center', flexShrink: 1 },
+  logoutButton: { minHeight: 52, borderRadius: 14, borderWidth: 1,  borderColor: 'rgba(211, 47, 47, 0.38)', backgroundColor: 'rgb(115, 14, 14)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, paddingHorizontal: 14, paddingVertical: 10, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 7, elevation: 4 },
+  logoutText: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'center', flexShrink: 1 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: theme.colors.header, borderRadius: 17, padding: 24, width: '80%', maxWidth: 320, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 10, elevation: 10 },
   modalTitle: { color: theme.colors.accent, fontSize: 24, fontWeight: '900', marginBottom: 12 },
   modalMessage: { color: theme.colors.accent, fontSize: 16, textAlign: 'center', marginBottom: 24 },
   modalButtons: { flexDirection: 'row', gap: 16 },
   modalButton: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12, minWidth: 100, alignItems: 'center' },
-  cancelButton: { backgroundColor: '#5c5b54' },
+  cancelButton: { backgroundColor: 'rgba(128, 128, 128, 0.15)',    borderWidth: 1,
+    borderColor: 'rgba(128, 128, 128, 0.40)', },
   cancelButtonText: { color: theme.colors.accent, fontSize: 16, fontWeight: '600' },
   confirmButton: { backgroundColor: '#d32f2f' },
   confirmButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },

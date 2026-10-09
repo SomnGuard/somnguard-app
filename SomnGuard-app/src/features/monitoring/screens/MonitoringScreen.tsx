@@ -373,7 +373,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
     pressedAction: { opacity: 0.78 },
     detectionNote: { color: theme.colors.textMuted, fontSize: theme.fontSize.xs, textAlign: 'center' },
     actionError: { color: theme.colors.error, fontSize: theme.fontSize.xs, fontWeight: '700', textAlign: 'center' },
-    dailyCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, borderWidth: 1, borderColor: theme.colors.border, padding: theme.spacing.md, minHeight: 140, maxHeight: 205 },
+    dailyCard: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, borderWidth: 1, borderColor: theme.colors.border, padding: theme.spacing.md, minHeight: 230, maxHeight: 205 },
     dailyHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
     dailyTitle: { color: theme.colors.accent, fontSize: theme.fontSize.md, fontWeight: '900' },
     refreshButton: { padding: 4 },
