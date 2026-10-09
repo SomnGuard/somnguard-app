@@ -42,7 +42,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   disabled: { backgroundColor: ButtonColors.disabled },
   pressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
   disabledOpacity: { opacity: 0.6 },
-  text: { color: '#ffffff', fontSize: theme.fontSize.md, fontWeight: '900', letterSpacing: 0.4 },
+  text: { color: '#ffffff', fontSize: theme.fontSize.lg, fontWeight: '900', letterSpacing: 0.4 },
   outlineText: { color: theme.colors.accent },
   disabledText: { color: '#ffffff' },
   });
