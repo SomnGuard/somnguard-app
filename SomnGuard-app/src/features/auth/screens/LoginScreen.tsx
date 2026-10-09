@@ -27,7 +27,7 @@ export default function LoginScreen() {
           {!!errors.general && <Text style={styles.formError}>{errors.general}</Text>}
           <View style={styles.buttonWrap}><AppButton title={isSubmitting ? t('common.validating') : t('auth.login.submit')} onPress={submit} /></View>
           <Pressable accessibilityRole="button" style={styles.linkRow} onPress={() => router.push('/(auth)/register')}>
-            <Text style={styles.linkText}>{t('auth.login.registerPrompt')} </Text><Text style={[styles.linkText, styles.underline]}>{t('auth.login.registerLink')}</Text>
+            <Text style={styles.linkTextblanck}>{t('auth.login.registerPrompt')}</Text><Text style={[styles.linkText, styles.underline]}>{t('auth.login.registerLink')}</Text>
           </Pressable>
           <Pressable accessibilityRole="button" style={styles.linkRow} onPress={() => router.push('/(auth)/forgot-password')}>
             <Text style={[styles.linkText, styles.underline]}>{t('auth.login.forgotPassword')}</Text>
@@ -41,16 +41,17 @@ export default function LoginScreen() {
 
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
-  screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 24, paddingHorizontal: theme.spacing.xl, paddingBottom: theme.spacing.xxl },
-  content: { width: '100%', maxWidth: 380, alignSelf: 'center' },
-  logoArea: { alignItems: 'center', marginBottom: 60 },
-  formCard: { flex: 1, justifyContent: 'center', marginBottom: -80, padding: 10, width: '100%' },
-  buttonWrap: { marginTop: 50, marginBottom: theme.spacing.xl, alignSelf: 'center', height: 50, width: '60%', maxWidth: 280 },
-  formError: { color: theme.colors.error, textAlign: 'center', fontSize: theme.fontSize.xs, marginTop: theme.spacing.xs },
-  linkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', alignSelf: 'stretch', marginBottom: theme.spacing.lg },
-  linkText: { color: theme.colors.textLink, fontSize: theme.fontSize.sm, fontWeight: '600' },
-  underline: { textDecorationLine: 'underline' },
-  inputSpacing: { marginBottom: 30 },
-  divider: { marginTop: 50, borderTopWidth: 1, borderColor: theme.colors.accent, opacity: 0.8 },
+  screen: { flexGrow: 1, paddingTop: '20%', paddingBottom: theme.spacing.xxl, paddingHorizontal: theme.spacing.xl },
+  content: { flexGrow: 1, justifyContent: 'center', width: '100%', maxWidth: 380, alignSelf: 'center' },
+  logoArea: { alignItems: 'center', marginBottom: theme.spacing.xxl },
+  formCard: { width: '100%', padding: 10 },
+  buttonWrap: { marginTop: theme.spacing.xxl, marginBottom: theme.spacing.xxl, alignSelf: 'center', height: 50, width: '60%', maxWidth: 280 },
+  formError: { color: theme.colors.error, textAlign: 'center', fontSize: theme.fontSize.md, marginTop: theme.spacing.md },
+  linkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', alignSelf: 'stretch', marginBottom: theme.spacing.xs },
+  linkText: { color: theme.colors.textLink, fontSize: theme.fontSize.lg, fontWeight: '600', marginLeft: 4, marginBottom: 8 },
+  linkTextblanck: { color: theme.colors.text, fontSize: theme.fontSize.lg, fontWeight: '600' },
+  underline: { textDecorationLine: 'underline'},
+  inputSpacing: { marginBottom: 35},
+  divider: { marginTop: '20%', borderTopWidth: 1, borderColor: theme.colors.accent, opacity: 1 },
   });
 }

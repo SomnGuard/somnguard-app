@@ -44,7 +44,7 @@ export function AppTextInput({ label, error, wrapperStyle, secureTextEntry, ...p
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
   wrapper: { width: '100%', marginBottom: theme.spacing.sm },
-  label: { color: theme.colors.accent, fontSize: theme.fontSize.sm, fontWeight: '600', marginBottom: theme.spacing.xs },
+  label: { color: theme.colors.accent, fontSize: 18, fontWeight: '600', marginBottom: theme.spacing.xs },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
