@@ -42,6 +42,9 @@ export default function DeviceScreen() {
   }
 
   useEffect(() => {
+    // Carga inicial desde el backend (sistema externo); el setState ocurre
+    // en callbacks asíncronos, no en el cuerpo del efecto.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

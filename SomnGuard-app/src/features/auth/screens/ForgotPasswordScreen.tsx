@@ -88,22 +88,22 @@ export default function ForgotPasswordScreen() {
 
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
-  screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 28, paddingHorizontal: 22 },
-  content: { width: '100%', maxWidth: 360 },
+  screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 28, paddingHorizontal: 16 },
+  content: { width: '100%', maxWidth: 360, alignSelf: 'center' },
   headerBlock: { alignItems: 'center' },
   title: { color: theme.colors.accent, fontSize: 18, fontWeight: '900', textAlign: 'center' },
   subtitle: { color: theme.colors.accent, fontSize: 12, fontWeight: '800', marginTop: 18, textAlign: 'center' },
-  logoBlock: { alignItems: 'center', marginTop: 36, marginBottom: 58 },
-  fieldBlock: { width: '100%', paddingHorizontal: 12 },
+  logoBlock: { alignItems: 'center', marginTop: 24, marginBottom: 32 },
+  fieldBlock: { width: '100%', paddingHorizontal: 8 },
   label: { color: theme.colors.accent, fontSize: 14, fontWeight: '900', marginBottom: 4 },
   inputRow: { minHeight: 43, borderRadius: 4, backgroundColor: theme.colors.header, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, gap: 10 },
   inputRowError: { borderWidth: 1, borderColor: theme.colors.error },
-  input: { flex: 1, color: theme.colors.accent, fontSize: 15, fontWeight: '800', borderBottomWidth: 1, borderBottomColor: theme.colors.accent, paddingVertical: 4 },
+  input: { flex: 1, minWidth: 0, flexShrink: 1, color: theme.colors.accent, fontSize: 15, fontWeight: '800', borderBottomWidth: 1, borderBottomColor: theme.colors.accent, paddingVertical: 4 },
   error: { color: theme.colors.error, fontSize: 11, fontWeight: '700', marginTop: 6 },
-  button: { alignSelf: 'center', width: 155, minHeight: 45, borderRadius: 12, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', marginTop: 54 },
+  button: { alignSelf: 'center', width: '100%', minWidth: 155, maxWidth: 280, minHeight: 45, borderRadius: 12, backgroundColor: theme.colors.accent, alignItems: 'center', justifyContent: 'center', marginTop: 32 },
   buttonPressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
   buttonDisabled: { opacity: 0.62 },
-  buttonText: { color: theme.colors.background, fontSize: 18, fontWeight: '900' },
-  icon: { position: 'absolute', top: '5%', left: 15, zIndex: 10 },
+  buttonText: { color: theme.colors.background, fontSize: 18, fontWeight: '900', textAlign: 'center', flexShrink: 1 },
+  icon: { position: 'absolute', top: 12, left: 12, zIndex: 10 },
   });
 }

@@ -166,22 +166,22 @@ function PasswordField({
 
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
-    screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 28, paddingHorizontal: 28 },
-    content: { width: '100%', maxWidth: 380 },
+    screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 28, paddingHorizontal: 16 },
+    content: { width: '100%', maxWidth: 380, alignSelf: 'center' },
     headerBlock: { alignItems: 'center' },
     title: { color: theme.colors.accent, fontSize: 23, fontWeight: '900', textAlign: 'center' },
     subtitle: { color: theme.colors.accent, fontSize: 12, fontWeight: '800', marginTop: 8, textAlign: 'center' },
-    logoBlock: { alignItems: 'center', marginTop: 40, marginBottom: 20 },
+    logoBlock: { alignItems: 'center', marginTop: 24, marginBottom: 16 },
     generalError: { color: theme.colors.error, fontSize: 12, fontWeight: '800', textAlign: 'center', marginBottom: 14 },
     fieldBlock: { marginBottom: 20 },
     label: { color: theme.colors.accent, fontSize: 14, fontWeight: '900', marginBottom: 6 },
     inputRow: { minHeight: 43, borderRadius: 4, backgroundColor: theme.colors.header, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, gap: 8 },
     inputRowError: { borderWidth: 1, borderColor: theme.colors.error },
-    input: { flex: 1, color: theme.colors.accent, fontSize: 15, fontWeight: '800', paddingVertical: 7 },
+    input: { flex: 1, minWidth: 0, flexShrink: 1, color: theme.colors.accent, fontSize: 15, fontWeight: '800', paddingVertical: 7 },
     error: { color: theme.colors.error, fontSize: 11, fontWeight: '800', marginTop: 5 },
     button: { alignSelf: 'center', width: '100%', minHeight: 53, borderRadius: 26, backgroundColor: theme.colors.header, alignItems: 'center', justifyContent: 'center', marginTop: 18, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 10, elevation: 4 },
     buttonPressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
     buttonDisabled: { opacity: 0.62 },
-    buttonText: { color: theme.colors.accent, fontSize: 20, fontWeight: '900' },
+    buttonText: { color: theme.colors.accent, fontSize: 20, fontWeight: '900', textAlign: 'center', flexShrink: 1 },
   });
 }

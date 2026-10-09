@@ -10,8 +10,10 @@ import {
   isStrongPassword,
   isValidColombianPhone,
   isValidEmail,
+  isValidName,
   isValidNameLength,
   onlyDigits,
+  onlyNameChars,
   type PasswordStrength,
 } from '@/shared/utils/validation';
 
@@ -21,8 +23,10 @@ function validate(form: RegisterForm, t: TFunction): RegisterErrors {
   const errors: RegisterErrors = {};
   if (!isRequired(form.firstName)) errors.firstName = t('auth.errors.firstNameRequired');
   else if (!isValidNameLength(form.firstName)) errors.firstName = t('auth.errors.firstNameLength');
+  else if (!isValidName(form.firstName)) errors.firstName = t('auth.errors.firstNameLetters');
   if (!isRequired(form.lastName)) errors.lastName = t('auth.errors.lastNameRequired');
   else if (!isValidNameLength(form.lastName)) errors.lastName = t('auth.errors.lastNameLength');
+  else if (!isValidName(form.lastName)) errors.lastName = t('auth.errors.lastNameLetters');
   if (!isRequired(form.email)) errors.email = t('auth.errors.emailRequired');
   else if (!isValidEmail(form.email)) errors.email = t('auth.errors.invalidEmailLong');
   if (!isRequired(form.password)) errors.password = t('auth.errors.passwordRequired');
@@ -52,7 +56,7 @@ export function useRegisterForm(onSuccess: () => void) {
   function updateField<K extends keyof RegisterForm>(field: K, value: RegisterForm[K]) {
     let nextValue: RegisterForm[K] = value;
     if (field === 'phone') nextValue = onlyDigits(value).slice(0, 10) as RegisterForm[K];
-    if (field === 'firstName' || field === 'lastName') nextValue = (value as string).slice(0, 25) as RegisterForm[K];
+    if (field === 'firstName' || field === 'lastName') nextValue = onlyNameChars(value as string).slice(0, 25) as RegisterForm[K];
     setForm((current) => ({ ...current, [field]: nextValue }));
     setErrors((current) => ({ ...current, [field]: undefined, general: undefined }));
   }

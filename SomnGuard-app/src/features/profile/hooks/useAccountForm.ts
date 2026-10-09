@@ -59,13 +59,15 @@ export function useAccountForm(onSuccess: (form: AccountForm) => void) {
           email: user.email ?? fallback.email,
           phone: (user.phone ?? fallback.phone).replace(/\D/g, ''),
         });
-      } catch (e) {
+      } catch {
         // si falla, mantiene fallback ya mostrado
       } finally {
         if (mounted) setIsLoading(false);
       }
     }
     load();
+    // Cargas iniciales desde el backend (sistema externo).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshDevices().catch(() => {});
     return () => {
       mounted = false;
@@ -95,8 +97,9 @@ export function useAccountForm(onSuccess: (form: AccountForm) => void) {
   }
 
   function updateDeviceCode(value: string) {
-    // El formato real lo define el backend (ClaimDeviceRequest.claimCode) - solo trim + tope
-    setDeviceCode(value.slice(0, 64));
+    // El código de vinculación es en mayúsculas: normalizar en vivo + tope.
+    // El formato real lo define el backend (ClaimDeviceRequest.claimCode).
+    setDeviceCode(value.toUpperCase().slice(0, 64));
     setDeviceError(undefined);
   }
 

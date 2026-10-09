@@ -40,6 +40,16 @@ export const isValidNameLength = (value: string): boolean => {
   return len >= 2 && len <= 25;
 };
 
+// Nombres: solo letras (incluye tildes, ñ, ü) y espacios simples entre palabras.
+// Sin números, símbolos ni caracteres especiales.
+const NAME_CHARS = 'A-Za-zÁÉÍÓÚáéíóúÑñÜü';
+export const isValidName = (value: string): boolean =>
+  new RegExp(`^[${NAME_CHARS}]+(?: [${NAME_CHARS}]+)*$`).test(value.trim());
+
+// Limpieza en vivo: elimina dígitos y símbolos, conserva letras y espacios.
+export const onlyNameChars = (value: string): string =>
+  value.replace(new RegExp(`[^${NAME_CHARS} ]`, 'g'), '');
+
 // Contraseña segura: min 8, mayúscula, minúscula, número, símbolo, sin espacios
 export const hasUppercase = (v: string) => /[A-Z]/.test(v);
 export const hasLowercase = (v: string) => /[a-z]/.test(v);
