@@ -4,7 +4,7 @@ const rawUrl = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
 
 if (!rawUrl) {
   throw new Error(
-    'EXPO_PUBLIC_API_URL no definida. Crea somnguard-app/SomnGuard-app/.env a partir de .env.example (ej: EXPO_PUBLIC_API_URL=http://localhost:8080)'
+    'EXPO_PUBLIC_API_URL no definida. Configura la variable en .env para desarrollo o en el perfil EAS usado para compilar.'
   );
 }
 
