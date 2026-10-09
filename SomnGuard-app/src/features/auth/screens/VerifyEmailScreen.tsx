@@ -125,7 +125,7 @@ export default function VerifyEmailScreen() {
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
     screen: { justifyContent: 'center', alignItems: 'center', paddingTop: 8, paddingHorizontal: 12 },
-    content: { width: '100%', maxWidth: 360, alignItems: 'center' },
+    content: { width: '100%', maxWidth: 360, alignItems: 'center', alignSelf: 'center' },
     logoBlock: { marginBottom: 18 },
     messageBlock: {
       width: '100%',
@@ -134,8 +134,8 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
       gap: 4,
       alignItems: 'center',
     },
-    messageText: { color: theme.colors.text, fontSize: 14, fontWeight: '500', lineHeight: 20, textAlign: 'center' },
-    inputWrapper: { width: '100%', marginTop: 40, marginBottom: 16 },
+    messageText: { color: theme.colors.text, fontSize: 14, fontWeight: '500', textAlign: 'center' },
+    inputWrapper: { width: '100%', marginTop: 24, marginBottom: 16 },
     input: {
       width: '100%',
       minHeight: 48,
@@ -149,7 +149,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
       fontSize: 15,
       fontWeight: '700',
       fontFamily: 'monospace',
-      letterSpacing: 3,
+      letterSpacing: 2,
     },
     inputError: { borderColor: theme.colors.error, backgroundColor: theme.colors.errorBg },
     error: { color: theme.colors.error, fontSize: 11, fontWeight: '800', marginTop: 8, textAlign: 'center' },
@@ -165,7 +165,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
     },
     buttonPressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
     buttonDisabled: { opacity: 0.6 },
-    buttonText: { color: theme.colors.accent, fontSize: 20, fontWeight: '900' },
+    buttonText: { color: theme.colors.accent, fontSize: 20, fontWeight: '900', textAlign: 'center', flexShrink: 1 },
     resendLink: { marginTop: 20 },
     resendText: { color: theme.colors.textLink, fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' },
   });

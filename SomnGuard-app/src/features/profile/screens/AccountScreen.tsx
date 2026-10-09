@@ -130,7 +130,7 @@ export default function AccountScreen() {
             <>
               <Text style={styles.deviceDescription}>{t('account.deviceDescription')}</Text>
               <Text style={styles.deviceEmpty}>{t('account.deviceNoLinked')}</Text>
-              <AppTextInput label={t('account.deviceCode')} placeholder={t('account.deviceCodePlaceholder')} value={deviceCode} keyboardType="default" autoCapitalize="none" autoCorrect={false} maxLength={64} error={deviceError} onChangeText={updateDeviceCode} />
+              <AppTextInput label={t('account.deviceCode')} placeholder={t('account.deviceCodePlaceholder')} value={deviceCode} keyboardType="default" autoCapitalize="characters" autoCorrect={false} maxLength={64} error={deviceError} onChangeText={updateDeviceCode} />
               <Text style={styles.deviceHelp}>{t('account.deviceHelp')}</Text>
               <View style={styles.buttonWrap}>
                 <AppButton title={isLinking ? t('common.saving') : t('account.deviceLink')} onPress={linkDevice} />

@@ -41,17 +41,17 @@ export default function LoginScreen() {
 
 function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
-  screen: { flexGrow: 1, paddingTop: '20%', paddingBottom: theme.spacing.xxl, paddingHorizontal: theme.spacing.xl },
+  screen: { flexGrow: 1, paddingTop: 24, paddingBottom: theme.spacing.xxl, paddingHorizontal: theme.spacing.lg },
   content: { flexGrow: 1, justifyContent: 'center', width: '100%', maxWidth: 380, alignSelf: 'center' },
   logoArea: { alignItems: 'center', marginBottom: theme.spacing.xxl },
   formCard: { width: '100%', padding: 10 },
-  buttonWrap: { marginTop: theme.spacing.xxl, marginBottom: theme.spacing.xxl, alignSelf: 'center', height: 50, width: '60%', maxWidth: 280 },
+  buttonWrap: { marginTop: theme.spacing.xxl, marginBottom: theme.spacing.xxl, alignSelf: 'center', minHeight: 50, width: '100%', maxWidth: 280 },
   formError: { color: theme.colors.error, textAlign: 'center', fontSize: theme.fontSize.md, marginTop: theme.spacing.md },
-  linkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', alignSelf: 'stretch', marginBottom: theme.spacing.xs },
-  linkText: { color: theme.colors.textLink, fontSize: theme.fontSize.lg, fontWeight: '600', marginLeft: 4, marginBottom: 8 },
-  linkTextblanck: { color: theme.colors.text, fontSize: theme.fontSize.lg, fontWeight: '600' },
+  linkRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', alignSelf: 'stretch', marginBottom: theme.spacing.xs },
+  linkText: { color: theme.colors.textLink, fontSize: theme.fontSize.sm, fontWeight: '600', marginLeft: 4, marginBottom: 8, flexShrink: 1, textAlign: 'center' },
+  linkTextblanck: { color: theme.colors.text, fontSize: theme.fontSize.sm, fontWeight: '600', flexShrink: 1, textAlign: 'center' },
   underline: { textDecorationLine: 'underline'},
   inputSpacing: { marginBottom: 35},
-  divider: { marginTop: '20%', borderTopWidth: 1, borderColor: theme.colors.accent, opacity: 1 },
+  divider: { marginTop: theme.spacing.xxl, borderTopWidth: 1, borderColor: theme.colors.accent, opacity: 1 },
   });
 }

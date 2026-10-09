@@ -1,5 +1,7 @@
 
 
+import { clearStoredTokens, persistStoredTokens } from '@/shared/api/sessionStore';
+
 const rawUrl = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
 
 if (!rawUrl) {
@@ -15,7 +17,8 @@ type TokenStore = {
   refreshToken: string | null;
 };
 
-// En memoria (suficiente para web/móvil dev; migrar a SecureStore si se requiere persistencia).
+// En memoria + espejo persistente en SecureStore (Keystore/Keychain en nativo).
+// La persistencia es fire-and-forget: si falla, la sesión sigue en memoria.
 export const tokenStore: TokenStore = {
   accessToken: null,
   refreshToken: null,
@@ -24,11 +27,13 @@ export const tokenStore: TokenStore = {
 export function setTokens(accessToken: string | null, refreshToken: string | null) {
   tokenStore.accessToken = accessToken;
   tokenStore.refreshToken = refreshToken;
+  persistStoredTokens(accessToken, refreshToken);
 }
 
 export function clearTokens() {
   tokenStore.accessToken = null;
   tokenStore.refreshToken = null;
+  clearStoredTokens();
 }
 
 export class ApiError extends Error {

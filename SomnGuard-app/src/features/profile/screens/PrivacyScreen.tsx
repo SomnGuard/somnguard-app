@@ -31,12 +31,8 @@ export default function PrivacyScreen() {
     showModal(t('privacy.policyTitle'), t('privacy.policyMessage'));
   }
 
-  function handleConsent() {
-    showModal(t('privacy.consentTitle'), t('privacy.consentMessage'));
-  }
-
   return (
-    <Screen scrollable={false} contentStyle={styles.screen}>
+    <Screen contentStyle={styles.screen}>
       <View style={styles.topBar}>
         <Pressable accessibilityRole="button" style={styles.backButton} onPress={() => router.push('/profile' as any)}>
           <Ionicons name="arrow-back-outline" size={28} color={theme.colors.accent} />
@@ -51,12 +47,6 @@ export default function PrivacyScreen() {
           <Text style={styles.cardTitle}>{t('privacy.dataTreatmentTitle')}</Text>
           <Text style={styles.cardDescription}>{t('privacy.dataTreatmentDescription')}</Text>
           <AppButton title={t('privacy.policyButton')} variant="outline" onPress={handlePolicy} />
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('privacy.consentTitle')}</Text>
-          <Text style={styles.cardDescription}>{t('privacy.consentDescription')}</Text>
-          <AppButton title={t('privacy.consentButton')} variant="outline" onPress={handleConsent} />
         </View>
 
         <View style={styles.card}>
@@ -82,7 +72,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   topBar: { height: 56, backgroundColor: theme.colors.header, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
   backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
   headerTitle: { color: theme.colors.accent, fontSize: 20, fontWeight: '900', textDecorationLine: 'underline' },
-  content: { flex: 1, width: '100%', maxWidth: 420, alignSelf: 'center', paddingTop: 16, paddingHorizontal: 24, paddingBottom: 16, gap: 14, justifyContent: 'flex-start' },
+  content: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingTop: 16, paddingHorizontal: 24, paddingBottom: 16, gap: 14, justifyContent: 'flex-start' },
   sectionTitle: { color: theme.colors.accent, fontSize: 20, fontWeight: '900', marginBottom: 16 },
   card: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, padding: 20, gap: 12, shadowColor: '#000', shadowOpacity: 0.14, shadowRadius: 10, elevation: 5 },
   cardDanger: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, padding: 20, gap: 12, borderWidth: 1, borderColor: 'rgba(255, 85, 85, 0.4)' },
