@@ -1,4 +1,6 @@
-import { createContext, createElement, PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { createContext, createElement, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { i18n, i18nReady } from '@/shared/i18n';
+import { loadAppPreferences } from '@/shared/preferences/storage';
 
 export type AppThemeName = 'dark' | 'light';
 
@@ -128,20 +130,48 @@ export type AppTheme = typeof theme;
 type ThemeContextValue = {
   colorScheme: AppThemeName;
   setColorScheme: (value: AppThemeName) => void;
+  preferencesLoaded: boolean;
   theme: AppTheme;
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
   colorScheme: 'dark',
   setColorScheme: () => undefined,
+  preferencesLoaded: false,
   theme,
 });
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const [colorScheme, setColorScheme] = useState<AppThemeName>('dark');
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const currentTheme = useMemo(() => ({ ...baseTheme, colors: Colors[colorScheme] }), [colorScheme]);
 
-  return createElement(ThemeContext.Provider, { value: { colorScheme, setColorScheme, theme: currentTheme } }, children);
+  useEffect(() => {
+    let mounted = true;
+
+    void (async () => {
+      try {
+        const [preferences] = await Promise.all([loadAppPreferences(), i18nReady]);
+        if (!mounted || !preferences) return;
+        setColorScheme(preferences.theme);
+        await i18n.changeLanguage(preferences.language);
+      } catch {
+        // A localization restore failure should not prevent the app from opening.
+      } finally {
+        if (mounted) setPreferencesLoaded(true);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return createElement(
+    ThemeContext.Provider,
+    { value: { colorScheme, setColorScheme, preferencesLoaded, theme: currentTheme } },
+    children,
+  );
 }
 
 export function useAppTheme() {

@@ -3,6 +3,7 @@ import { i18n } from '@/shared/i18n';
 import { usersApi, type UserMeResponse } from '@/shared/api/usersApi';
 import { devicesApi, type DeviceResponse } from '@/shared/api/devicesApi';
 import { ApiError } from '@/shared/api/client';
+import { saveAppPreferences } from '@/shared/preferences/storage';
 
 // Dispositivos vinculados del usuario (GET /api/v1/devices)
 let linkedDevices: DeviceResponse[] = [];
@@ -128,6 +129,7 @@ export const profileService = {
   },
 
   async savePreferences(values: PreferencesForm): Promise<PreferencesForm> {
+    await saveAppPreferences(values);
     return values;
   },
 
