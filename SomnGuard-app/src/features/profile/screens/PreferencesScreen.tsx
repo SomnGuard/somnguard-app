@@ -21,6 +21,7 @@ export default function PreferencesScreen() {
   const { t } = useTranslation();
   const { colorScheme, setColorScheme, theme } = useAppTheme();
   const [showSavedModal, setShowSavedModal] = useState(false);
+  const [showSaveErrorModal, setShowSaveErrorModal] = useState(false);
   const styles = createStyles(theme);
   const { form, isSubmitting, updateField, submit } = usePreferencesForm(() => {}, normalizeLanguage(i18n.resolvedLanguage ?? i18n.language), colorScheme);
 
@@ -33,11 +34,15 @@ export default function PreferencesScreen() {
   }
 
   async function handleSave() {
-    await submit();
-    // aplicar solo al guardar y mostrar confirmación
-    setColorScheme(form.theme);
-    await i18n.changeLanguage(form.language);
-    setShowSavedModal(true);
+    try {
+      await submit();
+      // Apply only after the preferences have been persisted successfully.
+      setColorScheme(form.theme);
+      await i18n.changeLanguage(form.language);
+      setShowSavedModal(true);
+    } catch {
+      setShowSaveErrorModal(true);
+    }
   }
 
   return (
@@ -78,6 +83,13 @@ export default function PreferencesScreen() {
         message={t('preferences.savedMessage')}
         onRequestClose={() => setShowSavedModal(false)}
         buttons={[{ text: t('common.confirm'), onPress: () => setShowSavedModal(false) }]}
+      />
+      <AppAlertModal
+        visible={showSaveErrorModal}
+        title={t('preferences.saveErrorTitle')}
+        message={t('preferences.saveErrorMessage')}
+        onRequestClose={() => setShowSaveErrorModal(false)}
+        buttons={[{ text: t('common.confirm'), onPress: () => setShowSaveErrorModal(false) }]}
       />
     </Screen>
   );

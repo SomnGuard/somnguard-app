@@ -19,9 +19,8 @@ export function normalizeLanguage(language?: string): AppLanguage {
 }
 
 export const i18n = createInstance();
-
-if (!i18n.isInitialized) {
-  void i18n.use(initReactI18next).init({
+export const i18nReady = !i18n.isInitialized
+  ? i18n.use(initReactI18next).init({
     resources,
     lng: DEFAULT_LANGUAGE,
     fallbackLng: DEFAULT_LANGUAGE,
@@ -31,5 +30,6 @@ if (!i18n.isInitialized) {
     interpolation: {
       escapeValue: false,
     },
-  });
-}
+  })
+  : Promise.resolve();
+

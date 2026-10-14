@@ -389,6 +389,8 @@
     language: 'Idioma',
     savedTitle: 'Preferencias guardadas',
     savedMessage: 'Tus opciones se han actualizado correctamente.',
+    saveErrorTitle: 'No se pudieron guardar',
+    saveErrorMessage: 'No fue posible guardar tus preferencias en este dispositivo. Inténtalo de nuevo.',
     theme: {
       dark: 'Oscuro',
       light: 'Claro',
@@ -829,6 +831,8 @@ const en: typeof es = {
     language: 'Language',
     savedTitle: 'Preferences saved',
     savedMessage: 'Your options were updated successfully.',
+    saveErrorTitle: 'Could not save preferences',
+    saveErrorMessage: 'Your preferences could not be saved on this device. Please try again.',
     theme: {
       dark: 'Dark',
       light: 'Light',
@@ -1269,6 +1273,8 @@ const pt: typeof es = {
     language: 'Idioma',
     savedTitle: 'Preferencias salvas',
     savedMessage: 'Suas opcoes foram atualizadas corretamente.',
+    saveErrorTitle: 'Nao foi possivel salvar',
+    saveErrorMessage: 'Nao foi possivel salvar suas preferencias neste dispositivo. Tente novamente.',
     theme: {
       dark: 'Escuro',
       light: 'Claro',
@@ -1709,6 +1715,8 @@ const fr: typeof es = {
     language: 'Langue',
     savedTitle: 'Preferences enregistrees',
     savedMessage: 'Tes options ont ete mises a jour correctement.',
+    saveErrorTitle: 'Impossible d’enregistrer',
+    saveErrorMessage: 'Impossible d’enregistrer tes preferences sur cet appareil. Reessaie.',
     theme: {
       dark: 'Sombre',
       light: 'Clair',

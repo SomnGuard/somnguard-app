@@ -19,9 +19,8 @@
         "android.permission.RECORD_AUDIO"
       ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#06121B",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -31,7 +30,9 @@
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.SYSTEM_ALERT_WINDOW",
         "android.permission.WAKE_LOCK",
-        "android.permission.BLUETOOTH"
+        "android.permission.BLUETOOTH",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
       "package": "com.cristianpalma123.SomnGuard"
     },
@@ -78,9 +79,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "18599062-5c55-4e70-9724-46a36800c465"
+        "projectId": "ab3c3598-8156-48f3-b1e9-bf5588be3c3f"
       }
     },
-    "owner": "pedropascals-team"
+    "owner": "somnguard-team"
   }
 }
