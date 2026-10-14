@@ -12,7 +12,6 @@
       "bitcode": false
     },
     "android": {
-      "usesCleartextTraffic": true,
       "versionCode": 2,
       "blockedPermissions": [
         "android.permission.CAMERA",
