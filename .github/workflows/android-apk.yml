@@ -131,11 +131,19 @@ jobs:
           print("Release signing configured.")
           PY
 
+
       - name: Build APK
         working-directory: SomnGuard-app/android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/somnguard-upload-key.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          test -s "$ANDROID_KEYSTORE_PATH"
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease
+
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
