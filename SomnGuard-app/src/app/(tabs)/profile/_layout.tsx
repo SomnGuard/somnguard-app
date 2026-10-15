@@ -10,6 +10,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="privacidad-de-datos" />
       <Stack.Screen name="seguridad" />
       <Stack.Screen name="soporte" />
+      <Stack.Screen name="dispositivo" />
     </Stack>
   );
 }

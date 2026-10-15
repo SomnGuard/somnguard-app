@@ -97,6 +97,14 @@ export const authApi = {
     });
   },
 
+  async verifyResetCode(code: string): Promise<{ message: string }> {
+    const clean = code.replace(/\D/g, '').slice(0, 6);
+    return apiFetch<{ message: string }>('/api/v1/auth/verify-reset-code', {
+      method: 'POST',
+      body: JSON.stringify({ code: clean }),
+    });
+  },
+
   async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
     return apiFetch<{ message: string }>('/api/v1/auth/reset-password', {
       method: 'POST',

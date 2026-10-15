@@ -1,4 +1,6 @@
-import { createContext, createElement, PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { createContext, createElement, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { i18n, i18nReady } from '@/shared/i18n';
+import { loadAppPreferences } from '@/shared/preferences/storage';
 
 export type AppThemeName = 'dark' | 'light';
 
@@ -52,6 +54,39 @@ export const Colors = {
   },
 };
 
+export const AlertSeverity = {
+  INFO: '#00C8C8',
+  WARNING: '#F9A825',
+  HIGH: '#F57C00',
+  CRITICAL: '#D32F2F',
+} as const;
+
+export type AlertSeverityType = keyof typeof AlertSeverity;
+
+export function getSeverityColor(severity: AlertSeverityType): string {
+  return AlertSeverity[severity];
+}
+
+export function getSeverityBg(severity: AlertSeverityType, alpha = 0.12): string {
+  const hex = AlertSeverity[severity].replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+export const ButtonColors = {
+  confirm: '#00A86B',
+  cancel: '#495663',
+  delete: '#D32F2F',
+  edit: '#1976D2',
+  continue: '#008F8F',
+  close: '#607D8B',
+  disabled: '#9E9E9E',
+} as const;
+
+export type ButtonVariant = keyof typeof ButtonColors | 'primary' | 'outline' | 'danger';
+
 export const theme = {
   colors: Colors.dark,
   spacing: {
@@ -95,20 +130,48 @@ export type AppTheme = typeof theme;
 type ThemeContextValue = {
   colorScheme: AppThemeName;
   setColorScheme: (value: AppThemeName) => void;
+  preferencesLoaded: boolean;
   theme: AppTheme;
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
   colorScheme: 'dark',
   setColorScheme: () => undefined,
+  preferencesLoaded: false,
   theme,
 });
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const [colorScheme, setColorScheme] = useState<AppThemeName>('dark');
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const currentTheme = useMemo(() => ({ ...baseTheme, colors: Colors[colorScheme] }), [colorScheme]);
 
-  return createElement(ThemeContext.Provider, { value: { colorScheme, setColorScheme, theme: currentTheme } }, children);
+  useEffect(() => {
+    let mounted = true;
+
+    void (async () => {
+      try {
+        const [preferences] = await Promise.all([loadAppPreferences(), i18nReady]);
+        if (!mounted || !preferences) return;
+        setColorScheme(preferences.theme);
+        await i18n.changeLanguage(preferences.language);
+      } catch {
+        // A localization restore failure should not prevent the app from opening.
+      } finally {
+        if (mounted) setPreferencesLoaded(true);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return createElement(
+    ThemeContext.Provider,
+    { value: { colorScheme, setColorScheme, preferencesLoaded, theme: currentTheme } },
+    children,
+  );
 }
 
 export function useAppTheme() {
