@@ -12,6 +12,7 @@
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 import SomnGuardLogo from '@/shared/components/SomnGuardLogo';
+import { restoreSession } from '@/shared/api/session';
 import { STATIC_COPY } from '@/shared/i18n/constants';
 import { useAppTheme } from '@/shared/theme';
 import { useRouter } from 'expo-router';
@@ -53,11 +54,20 @@ export default function SplashScreen() {
   const letterOpacity = useRef(LETTERS.map(() => new Animated.Value(0))).current;
   const letterTransY  = useRef(LETTERS.map(() => new Animated.Value(20))).current;
 
-  function goToLogin() {
-    router.replace('/(auth)/login');
+  const restoreRef = useRef<Promise<boolean> | null>(null);
+  const resolvedRef = useRef(false);
+
+  // Decide ruta solo una vez: sesión restaurada -> tabs, si no -> login.
+  async function resolveSession() {
+    if (resolvedRef.current) return;
+    resolvedRef.current = true;
+    const ok = await (restoreRef.current ?? Promise.resolve(false)).catch(() => false);
+    router.replace(ok ? '/(tabs)' : '/(auth)/login');
   }
 
   useEffect(() => {
+    // Restaurar en paralelo a la animación para no alargar el arranque.
+    restoreRef.current = restoreSession();
     // Ã¢â€â‚¬Ã¢â€â‚¬ 1) Logo: aparece con fade-in + scale con rebote Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     Animated.parallel([
       Animated.timing(logoOpacity, {
@@ -102,7 +112,7 @@ export default function SplashScreen() {
     screenOpacity.value = withDelay(
       FADEOUT_START,
       withTiming(0, { duration: FADEOUT_DUR }, (finished) => {
-        if (finished) runOnJS(goToLogin)();
+        if (finished) runOnJS(resolveSession)();
       }),
     );
     // Intentional one-time splash animation setup; refs hold mutable animation state.
