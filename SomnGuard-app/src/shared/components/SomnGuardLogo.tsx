@@ -12,7 +12,7 @@
 
 import { STATIC_COPY } from '@/shared/i18n/constants';
 import { useAppTheme } from '@/shared/theme';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Ellipse, Path, Rect } from 'react-native-svg';
 
@@ -56,6 +56,16 @@ const PUPIL_RADIUS = 9; // Radio fijo de la pupila
 const LX    = 14;   // Rango horizontal mÃ¡ximo de movimiento (más seguro en móvil)
 const LY    = 3;    // Rango vertical mÃ¡ximo de movimiento (más contenido en ojo)
 
+// Helpers de animación (fuera del componente para mantener el render puro).
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const rand = (a: number, b: number) => Math.random() * (b - a) + a;
+const randPos = () => {
+  const x = Math.min(Math.max(CX + rand(-LX, LX), CX - LX), CX + LX);
+  const y = Math.min(Math.max(CY + rand(-LY, LY), CY - LY), CY + LY);
+  return { x, y };
+};
+const randomSide = () => (Math.random() > 0.5 ? 1 : -1);
+
 export default function SomnGuardLogo({ size = 80, hideName = false }: Props) {
   const scale   = size / 80;
   const running = useRef(true);
@@ -63,12 +73,12 @@ export default function SomnGuardLogo({ size = 80, hideName = false }: Props) {
   const styles = createStyles(theme);
 
   // â”€â”€ Valores animados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const pupilX     = useRef(new Animated.Value(CX)).current;
-  const pupilY     = useRef(new Animated.Value(CY)).current;
-  const pillHeight = useRef(new Animated.Value(ALTO)).current;
-  const pillY      = useRef(new Animated.Value(CY - ALTO / 2)).current; // 38
-  const pillRx     = useRef(new Animated.Value(RADIO)).current;
-  const mouthCY    = useRef(new Animated.Value(81)).current;
+  const [pupilX]     = useState(() => new Animated.Value(CX));
+  const [pupilY]     = useState(() => new Animated.Value(CY));
+  const [pillHeight] = useState(() => new Animated.Value(ALTO));
+  const [pillY]      = useState(() => new Animated.Value(CY - ALTO / 2)); // 38
+  const [pillRx]     = useState(() => new Animated.Value(RADIO));
+  const [mouthCY]    = useState(() => new Animated.Value(81));
 
   const pupilRy = pillHeight.interpolate({
     inputRange: [3, ALTO],
@@ -89,14 +99,6 @@ export default function SomnGuardLogo({ size = 80, hideName = false }: Props) {
       }).start(() => resolve());
     });
   }
-
-  const sleep   = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
-  const rand    = (a: number, b: number) => Math.random() * (b - a) + a;
-  const randPos = () => {
-    const x = Math.min(Math.max(CX + rand(-LX, LX), CX - LX), CX + LX);
-    const y = Math.min(Math.max(CY + rand(-LY, LY), CY - LY), CY + LY);
-    return { x, y };
-  };
 
   // â”€â”€ Mover pupila â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function movePupil(tx: number, ty: number, duration: number) {
@@ -145,7 +147,7 @@ export default function SomnGuardLogo({ size = 80, hideName = false }: Props) {
     animateMouth(65, 300);
     await animatePill(10, 200);
     await sleep(100);
-    const lx = Math.random() > 0.5 ? CX + LX - 1 : CX - LX + 1;
+    const lx = CX + randomSide() * (LX - 1);
     await movePupil(lx, CY, rand(600, 1000));
     await sleep(rand(400, 900));
     await movePupil(CX, CY, 400);
