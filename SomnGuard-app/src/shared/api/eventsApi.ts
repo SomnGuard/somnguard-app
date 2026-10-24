@@ -220,7 +220,8 @@ export const eventsApi = {
   },
 
   // Página con metadatos (para paginación numerada exacta).
-  // Respuesta backend: { data, pagination: { page, pageSize, totalItems, totalPages } }.
+  // Respuesta backend (SNAKE_CASE): { data, pagination: { page, page_size, total_items, total_pages } }.
+  // Se normaliza a camelCase en el retorno de esta función.
   async listEventsPage({ deviceId, from, to, page = 1, pageSize = 10, severity, eventTypeId }: ListEventsParams): Promise<EventsPage> {
     const safePage = Number.isInteger(page) && (page as number) > 0 ? (page as number) : 1;
     const safePageSize = Number.isInteger(pageSize) && (pageSize as number) > 0 ? Math.min(pageSize as number, 100) : 10;
@@ -241,8 +242,10 @@ export const eventsApi = {
       return tb - ta;
     });
     const p = !Array.isArray(raw) ? (raw?.pagination ?? {}) : {};
-    const totalItems = typeof p.totalItems === 'number' ? p.totalItems : data.length;
-    const totalPages = typeof p.totalPages === 'number' ? p.totalPages : Math.max(data.length > 0 ? 1 : 0, Math.ceil(totalItems / safePageSize));
+    const rawTotalItems = p.totalItems ?? p.total_items;
+    const rawTotalPages = p.totalPages ?? p.total_pages;
+    const totalItems = typeof rawTotalItems === 'number' ? rawTotalItems : data.length;
+    const totalPages = typeof rawTotalPages === 'number' ? rawTotalPages : Math.max(data.length > 0 ? 1 : 0, Math.ceil(totalItems / safePageSize));
     return { data, pagination: { page: safePage, pageSize: safePageSize, totalItems, totalPages } };
   },
 

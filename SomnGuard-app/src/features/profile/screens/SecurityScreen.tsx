@@ -26,7 +26,7 @@ export default function SecurityScreen() {
   const [showEmailConfirm, setShowEmailConfirm] = useState(false);
   const [showEmailSuccess, setShowEmailSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [, setIsDeleting] = useState(false);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
 

@@ -16,7 +16,7 @@ import { restoreSession } from '@/shared/api/session';
 import { STATIC_COPY } from '@/shared/i18n/constants';
 import { useAppTheme } from '@/shared/theme';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import Animated2, {
   runOnJS,
@@ -47,12 +47,12 @@ export default function SplashScreen() {
   const screenOpacity = useSharedValue(1);
 
   // Ã¢â€â‚¬Ã¢â€â‚¬ Animated clÃƒÂ¡sico: logo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-  const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale   = useRef(new Animated.Value(0.3)).current;
+  const [logoOpacity] = useState(() => new Animated.Value(0));
+  const [logoScale]   = useState(() => new Animated.Value(0.3));
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Animated clÃƒÂ¡sico: una opacidad y translateY por cada letra Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-  const letterOpacity = useRef(LETTERS.map(() => new Animated.Value(0))).current;
-  const letterTransY  = useRef(LETTERS.map(() => new Animated.Value(20))).current;
+  // ── Animated clásico: una opacidad y translateY por cada letra ────────
+  const [letterOpacity] = useState(() => LETTERS.map(() => new Animated.Value(0)));
+  const [letterTransY]  = useState(() => LETTERS.map(() => new Animated.Value(20)));
 
   const restoreRef = useRef<Promise<boolean> | null>(null);
   const resolvedRef = useRef(false);
