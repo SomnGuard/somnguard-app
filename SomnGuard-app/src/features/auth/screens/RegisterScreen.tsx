@@ -7,7 +7,7 @@ import { AppTextInput } from '@/shared/components/AppTextInput';
 import { Screen } from '@/shared/components/Screen';
 import { useAppTheme } from '@/shared/theme';
 import { getPasswordStrengthLabel, useRegisterForm } from '@/features/auth/hooks/useRegisterForm';
-import Checkbox from 'expo-checkbox';
+import { Checkbox } from 'expo-checkbox';
 
 export default function RegisterScreen() {
 

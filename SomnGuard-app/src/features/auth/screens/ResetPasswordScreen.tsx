@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+﻿import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -15,7 +15,7 @@ type PasswordErrors = { password?: string; confirmPassword?: string; general?: s
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { token: tokenParam, code: codeParam } = useLocalSearchParams<{ token?: string; code?: string; email?: string }>();
+  const { token: tokenParam, code: codeParam, email: emailParam } = useLocalSearchParams<{ token?: string; code?: string; email?: string }>();
   // El código validado se mantiene del paso anterior como token
   const recoveryToken = String(tokenParam ?? codeParam ?? '').trim().replace(/\D/g, '').slice(0, 6);
   const [password, setPassword] = useState('');
@@ -46,7 +46,7 @@ export default function ResetPasswordScreen() {
     if (!validate()) return;
     try {
       setIsSubmitting(true);
-      await authService.resetPassword(recoveryToken, password);
+      await authService.resetPassword(recoveryToken, password, emailParam);
       setShowSuccess(true);
     } catch (submitError) {
       const msg = submitError instanceof Error ? submitError.message : t('auth.errors.resetFailed');

@@ -35,7 +35,7 @@ export default function VerifyNewEmailScreen() {
     try {
       await authApi.verifyEmail(clean);
       setShowSuccess(true);
-    } catch (e) {
+    } catch {
       // Siempre mostrar Token inválido para código incorrecto, sin mensaje técnico
       setError('Token inválido');
     } finally {

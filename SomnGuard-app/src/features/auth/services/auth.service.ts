@@ -104,11 +104,11 @@ export const authService = {
     }
   },
 
-  async verifyResetCode(code: string): Promise<void> {
+  async verifyResetCode(code: string, email?: string): Promise<void> {
     const clean = code.replace(/\D/g, '').slice(0, 6);
     if (!/^\d{6}$/.test(clean)) throw new Error(i18n.t('auth.errors.invalidResetCode'));
     try {
-      await authApi.verifyResetCode(clean);
+      await authApi.verifyResetCode(clean, email);
     } catch (e) {
       if (e instanceof ApiError && e.status === 0) throw new Error(i18n.t('common.connectionError'));
       if (e instanceof ApiError && e.status === 400) {
@@ -123,9 +123,9 @@ export const authService = {
     }
   },
 
-  async resetPassword(token: string, newPassword: string): Promise<void> {
+  async resetPassword(token: string, newPassword: string, email?: string): Promise<void> {
     try {
-      await authApi.resetPassword(token, newPassword);
+      await authApi.resetPassword(token, newPassword, email);
     } catch (e) {
       if (e instanceof ApiError && e.status === 0) throw new Error(i18n.t('common.connectionError'));
       if (e instanceof ApiError && (e.status === 400 || e.status === 404)) {

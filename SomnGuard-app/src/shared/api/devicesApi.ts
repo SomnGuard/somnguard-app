@@ -19,13 +19,14 @@ export type DeviceResponse = {
   lastConfigPullAt: string | null;
 };
 
+// Contrato de paginación del backend (SNAKE_CASE): { data, pagination: { page, page_size, total_items, total_pages } }.
 export type DevicePageResponse = {
   data: DeviceResponse[];
   pagination?: {
     page: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
+    page_size: number;
+    total_items: number;
+    total_pages: number;
   };
 };
 
