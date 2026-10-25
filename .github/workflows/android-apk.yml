@@ -95,6 +95,8 @@ jobs:
                       storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
                       keyAlias System.getenv('ANDROID_KEY_ALIAS')
                       keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+                      v1SigningEnabled true
+                      v2SigningEnabled true
                   }
           """
 
@@ -135,6 +137,7 @@ jobs:
       - name: Build APK
         working-directory: SomnGuard-app/android
         env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4608m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError"
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/somnguard-upload-key.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -142,7 +145,7 @@ jobs:
         run: |
           test -s "$ANDROID_KEYSTORE_PATH"
           chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease
+          ./gradlew --no-daemon assembleRelease --stacktrace
 
 
       - name: Upload APK artifact
