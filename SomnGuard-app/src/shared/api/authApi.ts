@@ -97,18 +97,21 @@ export const authApi = {
     });
   },
 
-  async verifyResetCode(code: string): Promise<{ message: string }> {
+  async verifyResetCode(code: string, email?: string): Promise<{ message: string }> {
     const clean = code.replace(/\D/g, '').slice(0, 6);
+    const body: Record<string, string> = { code: clean };
+    if (email && email.trim()) body.email = email.trim().toLowerCase();
     return apiFetch<{ message: string }>('/api/v1/auth/verify-reset-code', {
       method: 'POST',
-      body: JSON.stringify({ code: clean }),
+      body: JSON.stringify(body),
     });
   },
-
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  async resetPassword(token: string, newPassword: string, email?: string): Promise<{ message: string }> {
+    const body: Record<string, string> = { token: token.trim(), newPassword };
+    if (email && email.trim()) body.email = email.trim().toLowerCase();
     return apiFetch<{ message: string }>('/api/v1/auth/reset-password', {
       method: 'POST',
-      body: JSON.stringify({ token: token.trim(), newPassword }),
+      body: JSON.stringify(body),
     });
   },
 };

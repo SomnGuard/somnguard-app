@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+﻿import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,7 @@ export default function VerifyResetCodeScreen() {
     setError('');
     setIsSubmitting(true);
     try {
-      await authService.verifyResetCode(clean);
+      await authService.verifyResetCode(clean, recoveryEmail);
       // verify-reset-code solo valida, no consume -> navegar a reset-password con code como token
       router.push({ pathname: '/(auth)/reset-password', params: { token: clean, email: recoveryEmail } });
     } catch (e) {
