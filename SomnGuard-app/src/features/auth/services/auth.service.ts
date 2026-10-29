@@ -2,6 +2,7 @@ import { AuthUser, LoginForm, RegisterForm } from '@/features/auth/types/auth.ty
 import { i18n } from '@/shared/i18n';
 import { authApi } from '@/shared/api/authApi';
 import { ApiError } from '@/shared/api/client';
+import { pushNotificationService } from '@/features/notifications/services/pushNotification.service';
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -56,6 +57,7 @@ export const authService = {
       const accessToken = res.accessToken ?? res.access_token ?? null;
       const sub = decodeSub(accessToken);
       const email = normalizeEmail(credentials.email);
+      void pushNotificationService.registerCurrentDeviceToken();
       return { id: sub ?? email, name: email.split('@')[0], email };
     } catch (e) {
       if (e instanceof ApiError && e.status === 0) throw new Error(i18n.t('common.connectionError'));
@@ -147,6 +149,7 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
+      await pushNotificationService.unregisterCurrentDeviceToken();
       await authApi.logout();
     } catch {
       return;
