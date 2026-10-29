@@ -3,10 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start --port 3000",
+    "start": "expo start --go --port 3000",
+    "start:dev-client": "expo start --dev-client --port 3000",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android --port 3000",
-    "ios": "expo start --ios --port 3000",
+    "android": "expo start --go --android --port 3000",
+    "ios": "expo start --go --ios --port 3000",
     "web": "expo start --web --port 3000",
     "build:android:apk": "eas build --platform android --profile preview",
     "lint": "expo lint"
@@ -22,7 +23,6 @@
     "expo-build-properties": "~57.0.22",
     "expo-checkbox": "~57.0.0",
     "expo-constants": "~57.0.18",
-    "expo-dev-client": "~57.0.19",
     "expo-font": "~57.0.4",
     "expo-haptics": "~57.0.3",
     "expo-image": "~57.0.5",
