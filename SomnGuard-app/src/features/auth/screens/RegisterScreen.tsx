@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppButton } from '@/shared/components/AppButton';
@@ -18,6 +19,8 @@ export default function RegisterScreen() {
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState('');
+  const [termsModalVisible, setTermsModalVisible] = useState(false);
+  const [termsAcceptedInModal, setTermsAcceptedInModal] = useState(false);
 
   const { form, errors, isSubmitting, updateField, submit, passwordStrength } = useRegisterForm(() => {
     router.push('/(auth)/verify-email' as any);
@@ -34,7 +37,11 @@ export default function RegisterScreen() {
 
   return (
     <Screen keyboard contentStyle={styles.scroll}>
-      <Pressable accessibilityRole="button" style={styles.closeButton} onPress={() => (router.canGoBack() ? router.back() : router.replace('/(auth)/login'))}><Text style={styles.closeText}>x</Text></Pressable>
+      <View style={styles.icon}>
+        <Pressable onPress={() => router.back()} style={{ padding: 8 }}>
+          <Ionicons name="arrow-back" size={28} color={theme.colors.accent} />
+        </Pressable>
+      </View>
       <Text style={styles.title}>{t('auth.register.title')}</Text>
       <Text style={styles.subtitle}>{t('auth.register.subtitle')}</Text>
       <View style={styles.row}>
@@ -65,13 +72,62 @@ export default function RegisterScreen() {
           }}
           color={termsError ? theme.colors.error : undefined}
         />
-        <Pressable onPress={() => router.push('https://git-scm.com/docs/git-checkout')}>
+        <Pressable onPress={() => setTermsModalVisible(true)}>
           <Text style={styles.termsText}>{t('auth.register.acceptTerms')}<Text style={styles.termsLink}> {t('auth.register.termsAndConditions')}</Text></Text>
         </Pressable>
       </View>
       {!!termsError && <Text style={styles.termsError}>{termsError}</Text>}
 
       <View style={styles.buttonWrap}><AppButton title={isSubmitting ? t('common.submitting') : t('common.submit')} onPress={handleSubmit} /></View>
+
+      <Modal visible={termsModalVisible} transparent animationType="fade" onRequestClose={() => setTermsModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Pressable onPress={() => setTermsModalVisible(false)} style={styles.modalClose}>
+              <Text style={styles.modalCloseText}>×</Text>
+            </Pressable>
+            <Text style={styles.modalTitle}>Términos y Condiciones de uso — SomnGuard</Text>
+            <Text style={styles.modalSubtitle}>Revisa los términos antes de continuar</Text>
+            <ScrollView style={styles.modalScroll} contentContainerStyle={styles.modalScrollContent} showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalSectionTitle}>1. Objeto</Text>
+              <Text style={styles.modalText}>SomnGuard es una plataforma de apoyo a la conducción segura (dispositivo de monitoreo, aplicación móvil y portal web). Monitorea signos de somnolencia y distracción y genera alertas, historial de eventos y evidencia multimedia.</Text>
+              <Text style={styles.modalText}><Text style={styles.modalBold}>SomnGuard es una herramienta de apoyo: no sustituye la atención del conductor ni garantiza evitar accidentes.</Text> El conductor mantiene en todo momento la responsabilidad de conducir de forma segura.</Text>
+
+              <Text style={styles.modalSectionTitle}>2. Cuenta de usuario</Text>
+              <Text style={styles.modalText}>Debe registrarse con nombre, apellido, correo, teléfono y contraseña. El correo se verifica con un código de 6 dígitos vigente por 15 minutos. Sus credenciales son personales e intransferibles. Puede actualizar sus datos en Mi cuenta y cambiar su correo con verificación de su contraseña actual en Seguridad.</Text>
+
+              <Text style={styles.modalSectionTitle}>3. Dispositivo</Text>
+              <Text style={styles.modalText}>El dispositivo se vincula con el código entregado por el administrador. Mientras tenga un dispositivo vinculado, el formulario de vinculación no se muestra; para vincular otro equipo primero debe desvincular el actual. No manipule el equipo y manténgalo energizado y conectado.</Text>
+
+              <Text style={styles.modalSectionTitle}>4. Monitoreo, video y detección</Text>
+              <Text style={styles.modalText}>El portal y la app ofrecen vista en vivo y controles para encender/apagar la cámara y pausar/reanudar la detección. <Text style={styles.modalBold}>La detección pausada no se reanuda sola.</Text> Los eventos se clasifican por severidad (Informativa, Advertencia, Alta y Crítica).</Text>
+
+              <Text style={styles.modalSectionTitle}>5. Evidencia multimedia</Text>
+              <Text style={styles.modalText}>Algunos eventos incluyen imagen, visible únicamente para el titular de la cuenta y los administradores, siempre con autenticación; no se expone públicamente.</Text>
+
+              <Text style={styles.modalSectionTitle}>6. Uso aceptable</Text>
+              <Text style={styles.modalText}>Se prohíbe compartir credenciales o códigos con terceros no autorizados, interferir con el servicio o dispositivos ajenos, usarlo con fines ilícitos o intentar vulnerar su seguridad.</Text>
+
+              <Text style={styles.modalSectionTitle}>7. Disponibilidad</Text>
+              <Text style={styles.modalText}>Servicio bajo mejor esfuerzo: depende de que el dispositivo esté encendido, conectado y reportando. Cortes de energía, conectividad o mantenimientos pueden interrumpirlo.</Text>
+
+              <Text style={styles.modalSectionTitle}>8. Limitación de responsabilidad</Text>
+              <Text style={styles.modalText}>En la máxima medida permitida por la ley, SomnGuard no responde por accidentes o daños derivados de la conducción, incluso si el sistema no detectó un evento o no emitió una alerta.</Text>
+
+              <Text style={styles.modalSectionTitle}>9. Terminación y eliminación</Text>
+              <Text style={styles.modalText}>Puede desvincular su dispositivo en Mi cuenta y eliminar su cuenta en Seguridad: se desactiva por 30 días y se revocan sus sesiones.</Text>
+
+              <Text style={styles.modalSectionTitle}>10. Modificaciones y ley aplicable</Text>
+              <Text style={styles.modalText}>Podremos actualizar estos términos e informaremos los cambios relevantes en el portal. Se rigen por las leyes de la República de Colombia. Contacto y datos del responsable: ver la Política de Privacidad.</Text>
+            </ScrollView>
+            <View style={styles.modalFooter}>
+              <Pressable style={styles.modalAcceptButton} onPress={() => { setAcceptedTerms(true); setTermsAcceptedInModal(true); setTermsModalVisible(false); }}>
+                <Text style={styles.modalAcceptButtonText}>Acepto los términos y condiciones</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -94,8 +150,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   return StyleSheet.create({
   
   scroll: { paddingTop: theme.spacing.xl, paddingHorizontal: theme.spacing.lg, width: '100%', maxWidth: 520, alignSelf: 'center' },
-  closeButton: { width: 40, minHeight: 44, justifyContent: 'center', alignItems: 'center', marginBottom: theme.spacing.sm },
-  closeText: { color: theme.colors.textMuted, fontSize: 32, textAlign: 'center' },
+  icon: { marginTop: 4, marginBottom: 8, alignSelf: 'flex-start', paddingLeft: 4 },
   title: { color: theme.colors.accent, fontSize: theme.fontSize.xxl, fontWeight: '900', textAlign: 'center', marginBottom: theme.spacing.md },
   subtitle: { color: theme.colors.accent, fontSize: theme.fontSize.sm, textAlign: 'left', marginBottom: 30 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
@@ -117,5 +172,20 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   termsText: { marginLeft: theme.spacing.sm, color: theme.colors.text, flex: 1, minWidth: 0, flexShrink: 1 },
   termsLink: { color: theme.colors.textLink, textDecorationLine: 'underline', fontWeight: '700', },
   termsError: { color: theme.colors.error, fontSize: theme.fontSize.xs, marginTop: 6, marginLeft: 4 },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(9, 17, 31, 0.9)', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
+  modalContent: { backgroundColor: '#2a5f8f', borderWidth: 4, borderColor: theme.colors.header, borderRadius: theme.radius.card, padding: 0, width: '100%', maxWidth: 520, height: '80%', position: 'relative' },
+  modalClose: { position: 'absolute', top: 8, right: 8, zIndex: 10, width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  modalCloseText: { color: '#ffffff', fontSize: 28, lineHeight: 28 },
+  modalTitle: { color: theme.colors.accent, fontSize: theme.fontSize.lg, fontWeight: '700', marginTop: 40, marginBottom: 8, paddingHorizontal: 12, textAlign: 'center' },
+  modalSubtitle: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, textAlign: 'center', marginBottom: 8, paddingHorizontal: 12 },
+  modalScroll: { flex: 1, width: '100%' },
+  modalScrollContent: { paddingHorizontal: 12, paddingBottom: 8 },
+  modalSectionTitle: { color: theme.colors.accent, fontSize: theme.fontSize.sm, fontWeight: '700', marginTop: 10, marginBottom: 4 },
+  modalText: { color: theme.colors.text, fontSize: theme.fontSize.xs, lineHeight: 16, marginBottom: 2 },
+  modalBold: { fontWeight: '700' },
+  modalFooter: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
+  modalAcceptButton: { backgroundColor: theme.colors.accent, borderRadius: theme.radius.button, paddingVertical: 10, alignItems: 'center', width: '100%' },
+  modalAcceptButtonText: { color: '#ffffff', fontSize: theme.fontSize.sm, fontWeight: '700' },
   });
 }
