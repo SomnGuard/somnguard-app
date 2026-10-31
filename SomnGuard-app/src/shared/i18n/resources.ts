@@ -44,8 +44,8 @@ const es = {
       
     },
     forgot: {
-      title: 'Olvidaste tu contrasena?',
-      subtitle: 'Completa la siguiente informacion',
+      title: '¿Olvidaste tu contraseña?',
+      subtitle: 'Completa la siguiente información',
       emailLabel: 'Ingresa tu correo',
       emailPlaceholder: 'correo@gmail.com',
       helper: 'Correos de prueba: {{emails}}',
