@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/shared/api/authApi';
@@ -12,27 +12,40 @@ import { useAppTheme } from '@/shared/theme';
 export default function VerifyEmailScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState<string[]>(Array(6).fill(''));
+  const tokenInputs = useRef<Array<TextInput | null>>([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
 
-  function handleTokenChange(value: string) {
-    // solo números, sin letras/espacios/signos, máx 7
-    const digits = value.replace(/\D/g, '').slice(0, 7);
-    setToken(digits);
+  function handleTokenDigitChange(value: string, index: number) {
+    const digits = value.replace(/\D/g, '');
+    if (!digits) {
+      const nextToken = [...token];
+      nextToken[index] = '';
+      setToken(nextToken);
+      if (error) setError('');
+      return;
+    }
+
+    const nextToken = [...token];
+    digits.slice(0, 6 - index).split('').forEach((digit, offset) => {
+      nextToken[index + offset] = digit;
+    });
+    setToken(nextToken);
     if (error) setError('');
+    tokenInputs.current[Math.min(index + digits.length, 5)]?.focus();
   }
 
   async function handleSubmit() {
-    const clean = token.trim();
+    const clean = token.join('');
     if (!clean) {
       setError(t('auth.errors.tokenRequired') || 'Ingresa el código de verificación');
       return;
     }
-    if (!/^\d+$/.test(clean) || clean.length > 7) {
+    if (!/^\d{6}$/.test(clean)) {
       setError('Token inválido');
       return;
     }
@@ -74,19 +87,34 @@ export default function VerifyEmailScreen() {
         </View>
 
         <View style={styles.inputWrapper}>
-          <TextInput
-            value={token}
-            onChangeText={handleTokenChange}
-            placeholder={t('auth.verifyEmail.tokenPlaceholder')}
-            keyboardType="number-pad"
-            maxLength={7}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={[styles.input, !!error && styles.inputError]}
-            textAlign="center"
-            placeholderTextColor={theme.colors.placeholder}
-            selectionColor={theme.colors.accent}
-          />
+          <View style={styles.codeRow}>
+            {Array.from({ length: 6 }, (_, index) => (
+              <TextInput
+                key={index}
+                ref={(input) => { tokenInputs.current[index] = input; }}
+                value={token[index]}
+                onChangeText={(value) => handleTokenDigitChange(value, index)}
+                onKeyPress={({ nativeEvent }) => {
+                  if (nativeEvent.key === 'Backspace' && !token[index] && index > 0) {
+                    const previousToken = [...token];
+                    previousToken[index - 1] = '';
+                    setToken(previousToken);
+                    tokenInputs.current[index - 1]?.focus();
+                  }
+                }}
+                keyboardType="number-pad"
+                maxLength={6}
+                autoCapitalize="none"
+                autoCorrect={false}
+                accessibilityLabel={`Dígito ${index + 1} del código de verificación`}
+                style={[styles.codeCell, !!error && styles.inputError]}
+                textAlign="center"
+                selectionColor={theme.colors.accent}
+                returnKeyType={index === 5 ? 'done' : 'next'}
+                onSubmitEditing={() => index < 5 && tokenInputs.current[index + 1]?.focus()}
+              />
+            ))}
+          </View>
         </View>
         {!!error && <Text style={styles.error}>{error}</Text>}
 
@@ -136,20 +164,25 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
     },
     messageText: { color: theme.colors.text, fontSize: 14, fontWeight: '500', textAlign: 'center' },
     inputWrapper: { width: '100%', marginTop: 24, marginBottom: 16 },
-    input: {
-      width: '100%',
-      minHeight: 48,
+    codeRow: { flexDirection: 'row', width: '100%', gap: 8 },
+    codeCell: {
+      flex: 1,
+      width: 0,
+      minWidth: 0,
+      height: 64,
       backgroundColor: theme.colors.input,
-      color: theme.colors.accent,
-      borderRadius: theme.radius.input,
+      color: theme.colors.text,
+      borderRadius: 12,
       borderWidth: 1,
-      borderColor: theme.colors.border,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      fontSize: 15,
-      fontWeight: '700',
+      borderColor: theme.colors.accent,
+      paddingHorizontal: 0,
+      paddingVertical: 0,
+      fontSize: 24,
       fontFamily: 'monospace',
-      letterSpacing: 2,
+      fontWeight: '900',
+      textAlign: 'center',
+      textAlignVertical: 'center',
+      includeFontPadding: false,
     },
     inputError: { borderColor: theme.colors.error, backgroundColor: theme.colors.errorBg },
     error: { color: theme.colors.error, fontSize: 11, fontWeight: '800', marginTop: 8, textAlign: 'center' },

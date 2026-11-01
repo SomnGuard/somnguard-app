@@ -8,7 +8,8 @@ import { AppAlertModal } from '@/shared/components/AppAlertModal';
 import SomnGuardLogo from '@/shared/components/SomnGuardLogo';
 import { Screen } from '@/shared/components/Screen';
 import { useAppTheme } from '@/shared/theme';
-import { hasNoSpaces, isStrongPassword } from '@/shared/utils/validation';
+import { getPasswordStrength, hasNoSpaces, isStrongPassword, type PasswordStrength } from '@/shared/utils/validation';
+import { getPasswordStrengthLabel } from '@/features/auth/hooks/useRegisterForm';
 
 type PasswordErrors = { password?: string; confirmPassword?: string; general?: string };
 
@@ -27,6 +28,7 @@ export default function ResetPasswordScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
+  const passwordStrength = getPasswordStrength(password);
 
   function validate(): boolean {
     const nextErrors: PasswordErrors = {};
@@ -82,6 +84,10 @@ export default function ResetPasswordScreen() {
           label={t('auth.reset.newPassword')}
           value={password}
           error={errors.password}
+          strength={password ? {
+            level: passwordStrength.level,
+            label: getPasswordStrengthLabel(passwordStrength.level, t),
+          } : undefined}
           secure={!showPassword}
           onToggle={() => setShowPassword((v) => !v)}
           onChangeText={(value) => {
@@ -126,6 +132,7 @@ function PasswordField({
   label,
   value,
   error,
+  strength,
   secure,
   onToggle,
   onChangeText,
@@ -133,6 +140,7 @@ function PasswordField({
   label: string;
   value: string;
   error?: string;
+  strength?: { level: PasswordStrength; label: string };
   secure: boolean;
   onToggle: () => void;
   onChangeText: (value: string) => void;
@@ -159,7 +167,33 @@ function PasswordField({
           <Ionicons name={secure ? 'eye-off-outline' : 'eye-outline'} size={20} color={theme.colors.accent} />
         </Pressable>
       </View>
+      {strength && <PasswordStrengthBar level={strength.level} label={strength.label} />}
       {!!error && <Text style={styles.error}>{error}</Text>}
+    </View>
+  );
+}
+
+function PasswordStrengthBar({ level, label }: { level: PasswordStrength; label: string }) {
+  const { theme } = useAppTheme();
+  const colors: Record<PasswordStrength, string> = {
+    weak: '#D32F2F',
+    medium: '#F9A825',
+    good: '#1976D2',
+    strong: '#00A86B',
+  };
+  const widths: Record<PasswordStrength, `${number}%`> = {
+    weak: '25%',
+    medium: '50%',
+    good: '75%',
+    strong: '100%',
+  };
+
+  return (
+    <View style={{ gap: 6, marginTop: 6 }}>
+      <View style={{ height: 6, borderRadius: 6, backgroundColor: theme.colors.input, overflow: 'hidden' }}>
+        <View style={{ height: 6, width: widths[level], backgroundColor: colors[level], borderRadius: 6 }} />
+      </View>
+      <Text style={{ color: colors[level], fontSize: 11, fontWeight: '800' }}>{label}</Text>
     </View>
   );
 }
