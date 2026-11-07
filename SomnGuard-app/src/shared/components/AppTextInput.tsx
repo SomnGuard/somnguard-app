@@ -58,7 +58,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>['theme']) {
   },
   inputContainerFocused: { borderColor: theme.colors.borderFocused, backgroundColor: theme.colors.inputFocused },
   inputContainerError: { borderColor: theme.colors.error, backgroundColor: theme.colors.errorBg },
-  input: { flex: 1, color: theme.colors.text, fontSize: theme.fontSize.sm, paddingVertical: theme.spacing.sm, paddingHorizontal: 0 },
+  input: { flex: 1, width: 0, minWidth: 0, color: theme.colors.text, fontSize: theme.fontSize.sm, paddingVertical: theme.spacing.sm, paddingHorizontal: 0 },
   inputErrorText: {},
   error: { color: theme.colors.error, fontSize: theme.fontSize.xs, marginTop: 4, marginLeft: 4 },
   eyeButton: { padding: 6, marginLeft: 8, justifyContent: 'center', alignItems: 'center' },
